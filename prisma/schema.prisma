@@ -1,0 +1,235 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+ 
+generator client {
+  provider = "prisma-client-js"
+}
+ 
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  username      String?         @unique
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+  role       UserRole  @default(STAFF)
+  createdOrders Order[] @relation("OrderCreatedBy")
+  handledOrders Order[] @relation("OrderHandledBy")
+  upload        Design[]
+  payment       Payment[]
+  actor         OrderLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
+ 
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User?   @relation(fields: [userId], references: [id])
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+ 
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  @@index([userId])
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@unique([identifier, token])
+}
+ 
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([userId, credentialID])
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+model Customer {
+  id          String          @id @default(cuid())
+  name        String
+  phone       String?
+  email       String?   @unique
+  address     String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id             String          @id @default(cuid())
+  orderNumber    String        @unique
+  customerId     String
+  customer       Customer      @relation(fields: [customerId], references: [id])
+  createdById    String? 
+  createdBy      User?         @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  handledById    String?
+  handledBy      User?         @relation("OrderHandledBy", fields: [handledById], references: [id])
+  notes          String?
+  totalAmount    Decimal       @db.Decimal(12,2) @default(0) // sum of item prices (before payments)
+  shippingFee    Decimal?      @db.Decimal(12,2)
+  discountAmount Decimal?      @db.Decimal(12,2)
+  status         OrderStatus   @default(PENDING)
+  productionDue  DateTime?     // optional target completion date
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  canceledAt     DateTime?
+
+
+  items          OrderItem[]
+  payments       Payment[]
+  designs        Design[]
+  logs           OrderLog[]
+
+  @@index([customerId])
+  @@index([status])
+}
+
+enum OrderStatus {
+  PENDING      
+  CONFIRMED    
+  PROCESSING   
+  PRINTING     
+  FINISHING     
+  COMPLETED     
+  CANCELLED
+  ON_HOLD
+}
+
+model OrderItem {
+  id         String          @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  product    String   
+  sku        String?  
+  quantity   Int      @default(1)
+  unitPrice  Decimal  @db.Decimal(12,2) 
+  subtotal   Decimal  @db.Decimal(12,2) 
+  size       String?  
+  color      String?  
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model Design {
+  id          String          @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  filename    String
+  fileUrl     String  
+  previewUrl  String? 
+  sizeKb      Int?
+  uploadedBy  String? 
+  uploader    User?    @relation(fields: [uploadedBy], references: [id])
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+}
+
+
+model Payment {
+  id           String          @id @default(cuid())
+  orderId      String
+  order        Order         @relation(fields: [orderId], references: [id])
+  amount       Decimal       @db.Decimal(12,2)
+  method       PaymentMethod
+  type         PaymentType   
+  status       PaymentStatus @default(PENDING)
+  reference    String?       
+  paidAt       DateTime?
+  processedBy  String?
+  processor    User?         @relation(fields: [processedBy], references: [id])
+  createdAt    DateTime      @default(now())
+
+  @@index([orderId])
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  OVERRIDES    
+  E_WALLET     
+  CARD
+}
+
+enum PaymentType {
+  DP
+  FINAL
+  INSTALLMENT
+  REFUND
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model OrderLog {
+  id            String          @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  fromStatus OrderStatus?
+  toStatus   OrderStatus?
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+}

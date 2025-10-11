@@ -3,12 +3,12 @@ import { getCustomers } from "./queries";
 import DataTable from "./compoents/data-table";
 
 const Page = async () => {
-  const { data } = await getCustomers()
-if(!data || data?.length === 0) return null
+  const { data } = await getCustomers();
+
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-      <DataTable data={data}/>
+        <DataTable data={data ?? []} />
       </div>
     </div>
   );

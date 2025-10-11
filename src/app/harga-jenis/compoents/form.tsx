@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/components/providers/Modal-provider";
 import { SaveAllIcon, X } from "lucide-react";
-import { formCustomerSchema } from "@/types/zod";
+import { formHargaJenisSchema } from "@/types/zod";
 import { toast } from "sonner";
 import {
   Select,
@@ -30,40 +30,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormCustomerValue } from "@/types/form";
-import { addCustomer, updateCustomer } from "../actions";
+import { FormCustomerValue, FormHargaJenisValue } from "@/types/form";
+import { addHargaJenis, updateHargaJenis } from "../actions";
 import { Textarea } from "@/components/ui/textarea";
 
-const FormCustomer = ({
+const FormHargaJenis = ({
   id,
   name,
-  email,
-  phone,
-  address,
+  basePrice,
+  description,
+  isActive,
+  pricePerArea,
+  pricePerColor,
   notes,
-}: Partial<FormCustomerValue>) => {
+}: Partial<FormHargaJenisValue>) => {
   const isProcessing = useRef(false);
   const [loading, setLoading] = useState(false);
   const { setOpen } = useModal();
-  const form = useForm<z.infer<typeof formCustomerSchema>>({
-    resolver: zodResolver(formCustomerSchema),
+  const form = useForm<z.infer<typeof formHargaJenisSchema>>({
+    resolver: zodResolver(formHargaJenisSchema),
     defaultValues: {
       name: name ?? "",
-      phone: phone ?? "",
-      email: email ?? "",
-      address: address ?? "",
+      description: description ?? "",
+      basePrice: basePrice ?? "",
+      pricePerColor: pricePerColor ?? "",
+      pricePerArea: pricePerArea ?? "",
       notes: notes ?? "",
+      isAtive: isActive ?? true,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formCustomerSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formHargaJenisSchema>) => {
+    console.log({ values });
     const formData = new FormData();
-    Object.entries(values).forEach(([key, val]) => formData.append(key, val));
+    formData.set("name", values.name);
+    formData.set("description", values.description);
+    formData.set("basePrice", values.basePrice);
+    formData.set("pricePerColor",values.pricePerColor)
+    formData.set("pricePerArea",values.pricePerArea)
+    formData.set("notes",values.notes ?? "")
     try {
       setLoading(true);
       const { success, message } = id
-        ? await updateCustomer(id, formData)
-        : await addCustomer(formData);
+        ? await updateHargaJenis(id, formData)
+        : await addHargaJenis(formData);
       if (success) {
         toast("Sukses", {
           description: message,
@@ -103,15 +113,15 @@ const FormCustomer = ({
             />
             <FormField
               control={form.control}
-              name="phone"
+              name="basePrice"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>No hp</FormLabel>
+                  <FormLabel>Harga awal</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       className="w-full"
-                      placeholder="Masukan no hp"
+                      placeholder="Masukan harga awal"
                       {...field}
                     />
                   </FormControl>
@@ -120,34 +130,54 @@ const FormCustomer = ({
               )}
             />
           </div>
+          <div className="flex flex-col md:justify-between md:flex-row items-start gap-1">
+            <FormField
+              control={form.control}
+              name="pricePerColor"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Harga per warna</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      className="w-full"
+                      placeholder="Masukan harga per warna"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="pricePerArea"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Harga per area</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      className="w-full"
+                      placeholder="Masukan harga per area"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
             control={form.control}
-            name="email"
+            name="description"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    className="w-full"
-                    placeholder="Masukan email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Alamat</FormLabel>
+                <FormLabel>Deskripsi </FormLabel>
                 <FormControl>
                   <Textarea
                     className="w-full"
-                    placeholder="Masukan alamat"
+                    placeholder="Masukan deskripsi"
                     {...field}
                   />
                 </FormControl>
@@ -193,4 +223,4 @@ const FormCustomer = ({
   );
 };
 
-export default FormCustomer;
+export default FormHargaJenis;

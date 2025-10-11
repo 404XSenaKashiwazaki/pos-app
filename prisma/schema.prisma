@@ -117,11 +117,11 @@ model Order {
   handledById    String?
   handledBy      User?         @relation("OrderHandledBy", fields: [handledById], references: [id])
   notes          String?
-  totalAmount    Decimal       @db.Decimal(12,2) @default(0) // sum of item prices (before payments)
-  shippingFee    Decimal?      @db.Decimal(12,2)
-  discountAmount Decimal?      @db.Decimal(12,2)
+  totalAmount    String @db.VarChar(255)
+  shippingFee    String @db.VarChar(255)
+  discountAmount String @db.VarChar(255)
   status         OrderStatus   @default(PENDING)
-  productionDue  DateTime?     // optional target completion date
+  productionDue  DateTime? 
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   canceledAt     DateTime?
@@ -154,8 +154,8 @@ model OrderItem {
   product    String   
   sku        String?  
   quantity   Int      @default(1)
-  unitPrice  Decimal  @db.Decimal(12,2) 
-  subtotal   Decimal  @db.Decimal(12,2) 
+  unitPrice  String @db.VarChar(255)
+  subtotal   String @db.VarChar(255)
   size       String?  
   color      String?  
   notes      String?
@@ -185,7 +185,7 @@ model Payment {
   id           String          @id @default(cuid())
   orderId      String
   order        Order         @relation(fields: [orderId], references: [id])
-  amount       Decimal       @db.Decimal(12,2)
+  amount      String @db.VarChar(255)
   method       PaymentMethod
   type         PaymentType   
   status       PaymentStatus @default(PENDING)
@@ -232,4 +232,19 @@ model OrderLog {
   createdAt DateTime @default(now())
 
   @@index([orderId])
+}
+
+model SablonType {
+  id              String          @id @default(cuid())
+  name           String    @unique            
+  description    String?                    
+  basePrice     String @db.VarChar(255) 
+  pricePerColor  String? @db.VarChar(255) 
+  pricePerArea   String? @db.VarChar(255) 
+  notes          String?                     
+  isActive       Boolean   @default(true)    
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([isActive])
 }

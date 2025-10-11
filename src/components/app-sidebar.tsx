@@ -74,8 +74,8 @@ const data = {
       icon: IconArchive,
     },
     {
-      title: "User ",
-      url: "/user",
+      title: "Users ",
+      url: "/users",
       icon: IconUsers,
     },
     {

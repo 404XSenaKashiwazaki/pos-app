@@ -26,8 +26,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     setOptions(opts);
     setOpen(true);
   };
-console.log({ options });
-
+  
   return (
     <ModalContext.Provider value={{ modal, open, setOpen }}>
       {children}

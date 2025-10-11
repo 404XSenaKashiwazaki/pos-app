@@ -14,12 +14,12 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { useModal } from "@/components/providers/Modal-provider";
 
-import { ColumnPelangganDefProps } from "@/types/datatable";
-import FormCustomer from "./form";
-import DetailCustomer from "./detail";
-import { deleteCustomer } from "../actions";
+import { ColumnSablonTypeDefProps } from "@/types/datatable";
+import FormHargaJenis from "./form";
+import DetailHargaJenis from "./detail";
+import { deleteHargaJenis } from "../actions";
 
-const CellAction = ({ row }: { row: Row<ColumnPelangganDefProps> }) => {
+const CellAction = ({ row }: { row: Row<ColumnSablonTypeDefProps> }) => {
   const [loading, setLoading] = useState(false);
   const { modal, setOpen } = useModal();
 
@@ -28,7 +28,7 @@ const CellAction = ({ row }: { row: Row<ColumnPelangganDefProps> }) => {
     if (!id) return;
     try {
       setLoading(true);
-      const { success, message } = await deleteCustomer(id);
+      const { success, message } = await deleteHargaJenis(id);
       if (success)
         toast("Sukses", {
           description: message,
@@ -73,15 +73,17 @@ const CellAction = ({ row }: { row: Row<ColumnPelangganDefProps> }) => {
 
   const showModalEdit = () => {
     modal({
-      title: "Edit data pelanggan",
+      title: "Edit data harga & jenis",
       body: (
-        <FormCustomer
+        <FormHargaJenis
           id={row.original.id}
-          phone={row.original.phone}
-          notes={row.original.notes}
-          address={row.original.address}
-          name={row.original.name}
-          email={row.original.email}
+         basePrice={row.original.basePrice}
+         description={row.original.description}
+         isActive={row.original.isActive}
+         name={row.original.name}
+         notes={row.original.notes}
+         pricePerArea={row.original.pricePerArea}
+         pricePerColor={row.original.pricePerColor}
         />
       ),
       size: "sm:max-w-2xl",
@@ -90,8 +92,8 @@ const CellAction = ({ row }: { row: Row<ColumnPelangganDefProps> }) => {
 
   const showModalDetail = () => {
     modal({
-      title: "Detail data pelanggan",
-      body: <DetailCustomer id={row.original.id} />,
+      title: "Detail data harga & jenis",
+      body: <DetailHargaJenis id={row.original.id} />,
     });
   };
 
@@ -117,7 +119,7 @@ const CellAction = ({ row }: { row: Row<ColumnPelangganDefProps> }) => {
   );
 };
 
-export const columns = (): ColumnDef<ColumnPelangganDefProps>[] => [
+export const columns = (): ColumnDef<ColumnSablonTypeDefProps>[] => [
   {
     id: "select",
     header: () => <div>No</div>,
@@ -129,7 +131,7 @@ export const columns = (): ColumnDef<ColumnPelangganDefProps>[] => [
   },
   {
     id: "name",
-    accessorFn: (row: ColumnPelangganDefProps) => row.name ?? "",
+    accessorFn: (row: ColumnSablonTypeDefProps) => row.name ?? "",
     header: () => <div>Nama</div>,
     cell: (info) => info.getValue(),
     filterFn: (row, id, filterValue: string) => {
@@ -138,37 +140,37 @@ export const columns = (): ColumnDef<ColumnPelangganDefProps>[] => [
     },
   },
   {
-    accessorKey: "phone",
+    accessorKey: "description",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          No hp
+          Deskripsi
           <ArrowUpDown />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("phone")}</div>
+      <div className="capitalize">{row.getValue("description")}</div>
     ),
   },
   {
-    accessorKey: "email",
+    accessorKey: "basePrice",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
+          Harga dasar
           <ArrowUpDown />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <div className="">{row.getValue("email")}</div>
+      <div className="">{row.getValue("basePrice")}</div>
     ),
   },
 

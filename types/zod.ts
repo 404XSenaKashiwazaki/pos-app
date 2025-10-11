@@ -10,3 +10,13 @@ export const formCustomerSchema = z.object({
   address: z.string().min(1, { message: "Alamat wajib di isi." }),
   notes: z.string().optional(),
 });
+
+export const formHargaJenisSchema = z.object({
+  name: z.string().min(1, { message: "Nama wajib di isi." }),
+  description: z.string().min(1, { message: "Deskripsi wajib di isi." }),
+  basePrice: z.union([z.string().min(1, { message: "Harga awal wajib di isi." })]),
+  pricePerArea: z.union([z.string().min(1, { message: "Harga per area wajib di isi." })]),
+  pricePerColor: z.union([z.string().min(1, { message: "Harga warna wajib di isi." })]),
+  notes: z.string().optional(),
+  isAtive: z.boolean().optional()
+});

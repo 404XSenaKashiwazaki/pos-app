@@ -33,19 +33,20 @@ import {
 import { columns } from "./columns";
 
 import { useModal } from "@/components/providers/Modal-provider";
-import { Customer, Order, Prisma } from "@prisma/client";
-
 import FormPage from "./form";
-import { ColumnOrderTypeDefProps } from "@/types/datatable";
+import { ColumnPaymentTypeDefProps } from "@/types/datatable";
 import { useSheet } from "@/components/providers/Sheet-provider";
 import { IconCreditCardPay } from "@tabler/icons-react";
+import { Prisma } from "@prisma/client";
 
 interface DataTableProps {
-  data: ColumnOrderTypeDefProps[];
-  customer: Customer[];
+  data: ColumnPaymentTypeDefProps[];
+  orders: Prisma.OrderGetPayload<{
+      include: {customer: true, items: true, payments: true}
+    }>[]
 }
 
-export const DataTable = ({ data, customer }: DataTableProps) => {
+export const DataTable = ({ data, orders }: DataTableProps) => {
   const { sheet } = useSheet();
   const { modal } = useModal();
   const [mounted, setMounted] = React.useState(false);
@@ -60,7 +61,7 @@ export const DataTable = ({ data, customer }: DataTableProps) => {
   const [rowSelection, setRowSelection] = React.useState({});
   const table = useReactTable({
     data,
-    columns: columns({ customer }),
+    columns: columns({orders}),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -87,7 +88,7 @@ export const DataTable = ({ data, customer }: DataTableProps) => {
           </span>
         </>),
       description: "Form tambah data pembayaran",
-      content: <FormPage />,
+      content: <FormPage orders={orders}/>,
       size: "sm:max-w-2xl",
     });
   };

@@ -6,7 +6,7 @@ import { getFilePath, removeFile, uploadFile } from "@/lib/uploadFile";
 import { type Response } from "@/types/response";
 import { formCustomerSchema, formOrderSchema } from "@/types/zod";
 import { Customer, Order, OrderStatus } from "@prisma/client";
-import { exists, existsSync } from "fs";
+import { existsSync } from "fs";
 import { unlink, writeFile } from "fs/promises";
 import { revalidatePath } from "next/cache";
 import path from "path";
@@ -47,18 +47,17 @@ export const addOrder = async (
   const file = formdata.get("filename") as File | null;
   let fileName = "";
   let fileUrl = "";
-  let filePreview = ""
+  let filePreview = "";
   if (file) {
     const fileUpload = await uploadFile(file, "uploads");
     fileName = fileUpload.fileName;
     fileUrl = fileUpload.fileUrl;
-    filePreview = fileUpload.fileUrl
+    filePreview = fileUpload.fileUrl;
   } else {
     fileName = process.env.PREVIEW_IMAGE as string;
     fileUrl = process.env.PREVIEW_IMAGE_URL as string;
   }
-  console.log({ fileUrl: process.env.PREVIEW_IMAGE_URL as string});
-  
+
   try {
     await prisma.order.create({
       data: {
@@ -102,11 +101,11 @@ export const addOrder = async (
       file &&
       fileName !== (process.env.PREVIEW_IMAGE as string) &&
       existsSync(filePath)
-    ){
+    ) {
       console.log("remove file");
       await removeFile(filePath);
     }
-      
+
     console.log({ error });
     return sendResponse({
       success: false,
@@ -115,7 +114,10 @@ export const addOrder = async (
   }
 };
 
-export const updateOrder = async (id: string, formdata: FormData) => {
+export const updateOrder = async (
+  id: string,
+  formdata: FormData
+): Promise<Response<Order>> => {
   const currentLogin = await auth();
   const raw = {
     name: formdata.get("name"),
@@ -158,12 +160,9 @@ export const updateOrder = async (id: string, formdata: FormData) => {
     });
   try {
     const { data } = parseData;
-    console.log({ file });
-
     if (!file) {
       fileName = dataInDb.designs[0].filename;
       fileUrl = dataInDb.designs[0].fileUrl;
-
     } else {
       const filePath = getFilePath(dataInDb.designs[0].fileUrl);
       const fileUpload = await uploadFile(file, "uploads");
@@ -233,7 +232,7 @@ export const updateOrder = async (id: string, formdata: FormData) => {
           (process.env.PREVIEW_IMAGE as string)) &&
       existsSync(filePath)
     ) {
-      await removeFile(filePath)
+      await removeFile(filePath);
       console.log("remove file");
     }
     console.log({ error });
@@ -246,13 +245,25 @@ export const updateOrder = async (id: string, formdata: FormData) => {
 };
 export const deleteOrder = async (id: string): Promise<Response<Order>> => {
   try {
-    const dataInDb = await prisma.order.findUnique({ where: { id } });
+    const dataInDb = await prisma.order.findUnique({
+      where: { id },
+      include: { designs: true, payments: true },
+    });
     if (!dataInDb)
       return sendResponse({
         success: false,
         message: "Gagal mendapatkan data order",
       });
+    const filePath = getFilePath(dataInDb.designs[0].fileUrl);
     await prisma.customer.delete({ where: { id } });
+
+    if (
+      dataInDb.designs[0].filename !== (process.env.PREVIEW_IMAGE as string) &&
+      existsSync(filePath)
+    ) {
+      await removeFile(filePath);
+      console.log("remove file");
+    }
     revalidatePath("pemesanan");
     return sendResponse({
       success: true,

@@ -168,7 +168,7 @@ model Design {
   id          String          @id @default(cuid())
   orderId     String
   order       Order    @relation(fields: [orderId], references: [id])
-  filename    String
+  filename    String 
   fileUrl     String  
   previewUrl  String? 
   sizeKb      Int?
@@ -189,8 +189,10 @@ model Payment {
   method       PaymentMethod
   type         PaymentType   
   status       PaymentStatus @default(PENDING)
-  reference    String?       
+  reference    String       
+  filename    String
   paidAt       DateTime?
+  notes          String?
   processedBy  String?
   processor    User?         @relation(fields: [processedBy], references: [id])
   createdAt    DateTime      @default(now())

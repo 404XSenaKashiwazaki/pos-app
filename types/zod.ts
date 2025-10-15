@@ -102,13 +102,9 @@ export const formOrderSchema = z.object({
   status: z.string().min(1, "Status pemesanan wajib di isi."),
   size: z.string().min(1, "Ukuran wajib di isi."),
   // tb design
-  filename: z.union([
-    z.file(),
-    z.string(),
-  ]).optional(),
+  filename: z.union([z.file(), z.string()]).optional(),
   previewUrl: z.string().optional(),
-  productionDue: z
-    .union([z.string(), z.date()]),
+  productionDue: z.union([z.string(), z.date()]),
   //
   name: z.string().min(1, "Nama pemesan file wajib di isi."),
   phone: z.string().min(1, "Nomor hp pemesan file wajib di isi."),
@@ -119,15 +115,42 @@ export const formOrderSchema = z.object({
 });
 
 export const formPaymentSchema = z.object({
-  orderId: z.string(),
-  amount: z.string(),
-  notes: z.string().optional(),
+  orderId: z.string().min(1, "Pemesan dan produk pesanan wajib di isi."),
+  amount: z
+    .string()
+    .min(1, "Sub total wajib di isi.")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 0;
+      },
+      {
+        message: "Sub total tidak boleh negatif.",
+      }
+    )
+    .refine(
+      (v) => {
+        return Number(v) === 0 ? false : true;
+      },
+      {
+        message: "Sub total tidak boleh 0.",
+      }
+    ),
   method: z.string().min(1, "Metode pembayaran wajib di isi."),
-  status: z.string(),
-  type: z.string(),
-  reference: z.string(),
-  paidAt: z.string(),
-  processedBy: z.string(),
-  discontAmount: z.string().optional(),
-  shippingFee: z.string().optional(),
+  status: z.string().min(1, "Status pembayaran wajib di isi."),
+  type: z.string().min(1, "Type pembayaran wajib di isi."),
+  reference: z.union([z.instanceof(File), z.string()]).refine(
+    (val) => {
+      if (val instanceof File) return val.size > 0;
+      if (typeof val === "string") return val.trim().length > 0;
+      return false;
+    },
+    {
+      message: "Bukti pembayaran wajib diisi.",
+    }
+  ),
+  paidAt: z
+    .union([z.string(), z.date(), z.undefined()])
+    .default(new Date())
+    .optional(),
 });

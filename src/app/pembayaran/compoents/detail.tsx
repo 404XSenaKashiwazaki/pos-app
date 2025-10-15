@@ -16,25 +16,27 @@ import React, { useEffect, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { Customer, Order } from "@prisma/client";
-import { getOrderById } from "../queries";
+import { getPaymentById } from "../queries";
+import { ColumnPaymentTypeDefProps } from "@/types/datatable";
 
-interface DetailPembelianProps {
+interface DetailPageProps {
   id: string | null;
 }
 
-const DetailPage = ({ id }: DetailPembelianProps) => {
+const DetailPage = ({ id }: DetailPageProps) => {
   const [isPending, startTransition] = useTransition();
-  const [data, setData] = useState<Order | null>(null);
+  const [data, setData] = useState<ColumnPaymentTypeDefProps | null>(null);
   useEffect(() => {
     startTransition(async () => {
       if (id) {
-        const { data } = await getOrderById(id);
+        const { data } = await getPaymentById(id);
         setData(data ?? null);
       }
     });
   }, []);
 
   // const produk = pembelian?.detailpembelian.map(e=> ({...e.}))
+
 
   if (!data) return null;
   return (
@@ -50,7 +52,7 @@ const DetailPage = ({ id }: DetailPembelianProps) => {
             Nama:
           </span>
           <span className="font-medium text-primary">
-            { "-"}
+            {data.order.customer.name ?? "-"}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">
@@ -86,7 +88,7 @@ const DetailPage = ({ id }: DetailPembelianProps) => {
             Catatan:
           </span>
           <span className="font-medium text-primary">
-            {data.notes ?? "-"}
+            {data.order.notes ?? "-"}
           </span>
         </div>
       </div>

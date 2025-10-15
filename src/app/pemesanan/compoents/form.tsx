@@ -111,9 +111,7 @@ const FormPage = ({
       filename: "",
       status: status ?? "PENDING",
       notes: notes ?? "",
-      createdAt: createdAt
-        ? new Date(createdAt)
-        : new Date().toISOString(),
+      createdAt: createdAt ? new Date(createdAt) : new Date().toISOString(),
       unitPrice: unitPrice ?? "",
       quantity: quantity ?? "",
       totalAmount: totalAmount ?? "",
@@ -123,8 +121,6 @@ const FormPage = ({
         : currentDate.toISOString(),
     },
   });
-
-  console.log({ form: productionDue });
 
   const onSubmit = async (values: z.infer<typeof formOrderSchema>) => {
     const formData = new FormData();
@@ -148,20 +144,23 @@ const FormPage = ({
     formData.append("email", values.email ?? "");
     formData.append("address", values.address ?? "");
     formData.append("name", values.name ?? "");
-    formData.append("productionDue",new Date(values.productionDue ?? "").toISOString())
+    formData.append(
+      "productionDue",
+      new Date(values.productionDue ?? "").toISOString()
+    );
     try {
       setLoading(true);
       const { success, message, error } = id
         ? await updateOrder(id, formData)
         : await addOrder(formData);
       if (success) {
+        setLoading(false);
+        setOpen(false);
         toast("Sukses", {
           description: message,
           position: "top-right",
           closeButton: true,
         });
-        setLoading(false);
-        setOpen(false);
       }
       if (error) {
         setLoading(false);
@@ -184,7 +183,6 @@ const FormPage = ({
     setOrderNumberValue(res);
     form.setValue("orderNumber", res);
   };
-
 
   const findCustomer = (id: string) =>
     customer.find((e) => String(e.id) === id);

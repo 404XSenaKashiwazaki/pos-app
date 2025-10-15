@@ -9,7 +9,7 @@ export const uploadFile = async (file: File,folders: string) => {
   const bufferFile = Buffer.from(bytesFile);
   const filePath = path.join(process.cwd(), "public", folders, fileName);
   await writeFile(filePath, bufferFile);
-  const fileUrl = `/uploads/${fileName}`;
+  const fileUrl = `/${folders}/${fileName}`;
   return { fileName, fileUrl, filePath, bufferFile };
 };
 

@@ -118,8 +118,8 @@ model Order {
   handledBy      User?         @relation("OrderHandledBy", fields: [handledById], references: [id])
   notes          String?
   totalAmount    String @db.VarChar(255)
-  shippingFee    String @db.VarChar(255)
-  discountAmount String @db.VarChar(255)
+  shippingFee    String? @db.VarChar(255)
+  discountAmount String? @db.VarChar(255)
   status         OrderStatus   @default(PENDING)
   productionDue  DateTime? 
   createdAt      DateTime      @default(now())

@@ -15,7 +15,7 @@ import React, { useEffect, useState, useTransition } from "react";
 
 import { format } from "date-fns";
 import { formatCurrency } from "@/lib/formatCurrency";
-import { Customer, Order, Prisma } from "@prisma/client";
+import { Customer, Order } from "@prisma/client";
 import { getOrderById } from "../queries";
 
 interface DetailPembelianProps {
@@ -24,9 +24,7 @@ interface DetailPembelianProps {
 
 const DetailPage = ({ id }: DetailPembelianProps) => {
   const [isPending, startTransition] = useTransition();
-  const [data, setData] = useState<Prisma.OrderGetPayload<{
-    include: { customer: true; items: true; designs: true };
-  }> | null>(null);
+  const [data, setData] = useState<Order | null>(null);
   useEffect(() => {
     startTransition(async () => {
       if (id) {
@@ -42,13 +40,17 @@ const DetailPage = ({ id }: DetailPembelianProps) => {
   return (
     <div className="space-y-3">
       <div className="space-y-1">
+        <span className="flex items-center gap-1 text-muted-foreground font-medium">
+          <IconUserCircle className="h-4 w-4" />
+          Data Pelanggan
+        </span>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
             <IconPencil className="h-4 w-4" />
             Nama:
           </span>
           <span className="font-medium text-primary">
-            {data.customer.name ?? "-"}
+            { "-"}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">
@@ -57,7 +59,7 @@ const DetailPage = ({ id }: DetailPembelianProps) => {
             No hp:
           </span>
           <span className="font-medium text-primary">
-            {data.customer.phone ?? "-"}
+            { "-"}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">
@@ -66,7 +68,7 @@ const DetailPage = ({ id }: DetailPembelianProps) => {
             Email:
           </span>
           <span className="font-medium text-primary">
-            {data.customer.email ?? "-"}
+            { "-"}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">
@@ -75,20 +77,17 @@ const DetailPage = ({ id }: DetailPembelianProps) => {
             Alamat:
           </span>
           <span className="font-medium text-primary">
-            {data.customer.address ?? "-"}
+            {"-"}
           </span>
-        </div>
-        <div className="flex items-center lex-col md:flex-row md:justify-between gap-1 text-sm">
-          <span className="flex items-center gap-1 text-muted-foreground">
-            Catatan:
-          </span>
-          <span className="font-medium text-primary">{data.notes ?? "-"}</span>
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
+            <IconNotebook className="h-4 w-4" />
             Catatan:
           </span>
-          <span className="font-medium text-primary">{data.notes ?? "-"}</span>
+          <span className="font-medium text-primary">
+            {data.notes ?? "-"}
+          </span>
         </div>
       </div>
     </div>

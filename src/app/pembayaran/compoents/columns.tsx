@@ -19,19 +19,15 @@ import FormPage from "./form";
 import DetailPage from "./detail";
 import { deleteOrder } from "../actions";
 import { Customer } from "@prisma/client";
-import { format } from "date-fns";
-import { formatCurrency } from "@/lib/formatCurrency";
-import { useSheet } from "@/components/providers/Sheet-provider";
-import { IconShoppingCartPlus } from "@tabler/icons-react";
 
 interface CellActionProps {
-  row: Row<ColumnOrderTypeDefProps>;
-  customer: Customer[];
+ row: Row<ColumnOrderTypeDefProps>  
+ customer: Customer[]
 }
+
 const CellAction = ({ row, customer }: CellActionProps) => {
   const [loading, setLoading] = useState(false);
   const { modal, setOpen } = useModal();
-  const { sheet } = useSheet();
 
   const deleteData = async () => {
     const id = row.original.id;
@@ -55,7 +51,7 @@ const CellAction = ({ row, customer }: CellActionProps) => {
     modal({
       title: "Apakah kamu benar-benar yakin?",
       description:
-        "Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pemesanan Anda secara permanen",
+        "Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pembayaran Anda secara permanen",
       body: (
         <>
           <div className="flex justify-end gap-2 mt-4">
@@ -82,36 +78,11 @@ const CellAction = ({ row, customer }: CellActionProps) => {
   };
 
   const showModalEdit = () => {
-    sheet({
-      title: (
-        <span className="flex items-center gap-1 text-muted-foreground font-medium">
-          <IconShoppingCartPlus className="h-4 w-4" />
-          Form edit data pemesanan
-        </span>
-      ),
-      description: "form untuk edit data pemesanan ",
-      content: (
+    modal({
+      title: "Edit data pembayaran",
+      body: (
         <FormPage
-          customer={customer}
           id={row.original.id}
-          orderNumber={row.original.orderNumber}
-          productionDue={row.original.productionDue ?? ""}
-          createdAt={row.original.createdAt ?? ""}
-          address={row.original.customer.address ?? ""}
-          phone={row.original.customer.phone ?? ""}
-          name={row.original.customer.name ?? ""}
-          color={row.original.items[0].color ?? ""}
-          customerId={row.original.customerId}
-          email={row.original.customer.email ?? ""}
-          filename={row.original.designs[0].filename}
-          notes={row.original.notes ?? ""}
-          previewUrl={row.original.designs[0].previewUrl ?? ""}
-          quantity={String(row.original.items[0].quantity) ?? ""}
-          size={row.original.items[0].size ?? ""}
-          status={row.original.status}
-          totalAmount={row.original.totalAmount}
-          unitPrice={row.original.items[0].unitPrice}
-          product={row.original.items[0].product}
         />
       ),
       size: "sm:max-w-2xl",
@@ -120,10 +91,8 @@ const CellAction = ({ row, customer }: CellActionProps) => {
 
   const showModalDetail = () => {
     modal({
-      title: "Detail pemesanan",
+      title: "Detail data pembayaran",
       body: <DetailPage id={row.original.id} />,
-      description:"Detail data pemesanan ",
-      size: "sm:max-w-2xl"
     });
   };
 
@@ -149,11 +118,7 @@ const CellAction = ({ row, customer }: CellActionProps) => {
   );
 };
 
-export const columns = ({
-  customer,
-}: {
-  customer: Customer[];
-}): ColumnDef<ColumnOrderTypeDefProps>[] => [
+export const columns = ({ customer }: { customer: Customer[] }): ColumnDef<ColumnOrderTypeDefProps>[] => [
   {
     id: "select",
     header: () => <div>No</div>,
@@ -173,11 +138,8 @@ export const columns = ({
       return nama.toLowerCase().includes(filterValue.toLowerCase());
     },
   },
-
   {
     accessorKey: "product",
-    accessorFn: (row: ColumnOrderTypeDefProps) => row.items[0].product ?? "",
-    cell: (info) => info.getValue(),
     header: ({ column }) => {
       return (
         <Button
@@ -189,10 +151,9 @@ export const columns = ({
         </Button>
       );
     },
-    filterFn: (row, id, filterValue: string) => {
-      const nama = row.getValue<string>(id);
-      return nama.toLowerCase().includes(filterValue.toLowerCase());
-    },
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("product")}</div>
+    ),
   },
   {
     accessorKey: "createdAt",
@@ -208,10 +169,10 @@ export const columns = ({
       );
     },
     cell: ({ row }) => (
-      <div className="">{format(row.getValue("createdAt"), "PPP")}</div>
+      <div className="">{row.getValue("createdAt")}</div>
     ),
   },
-  {
+{
     accessorKey: "productionDue",
     header: ({ column }) => {
       return (
@@ -225,7 +186,7 @@ export const columns = ({
       );
     },
     cell: ({ row }) => (
-      <div className="">{format(row.getValue("productionDue"), "PPP")}</div>
+      <div className="">{row.getValue("productionDue")}</div>
     ),
   },
   {
@@ -242,7 +203,7 @@ export const columns = ({
       );
     },
     cell: ({ row }) => (
-      <div className="">{formatCurrency(row.getValue("totalAmount"))}</div>
+      <div className="">{row.getValue("totalAmount")}</div>
     ),
   },
   {

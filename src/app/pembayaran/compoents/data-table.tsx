@@ -38,7 +38,7 @@ import { Customer, Order, Prisma } from "@prisma/client";
 import FormPage from "./form";
 import { ColumnOrderTypeDefProps } from "@/types/datatable";
 import { useSheet } from "@/components/providers/Sheet-provider";
-import { IconShoppingBagPlus, IconShoppingCartPlus, IconUserCircle } from "@tabler/icons-react";
+import { IconCreditCardPay } from "@tabler/icons-react";
 
 interface DataTableProps {
   data: ColumnOrderTypeDefProps[];
@@ -47,6 +47,7 @@ interface DataTableProps {
 
 export const DataTable = ({ data, customer }: DataTableProps) => {
   const { sheet } = useSheet();
+  const { modal } = useModal();
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
@@ -79,20 +80,20 @@ export const DataTable = ({ data, customer }: DataTableProps) => {
 
   const showModalAdd = () => {
     sheet({
-      title: (
-        <span className="flex items-center gap-1 text-muted-foreground font-medium">
-          <IconShoppingCartPlus className="h-4 w-4" />
-          Form tambah data pemesanan
-        </span>
-      ),
-      description: "form untuk tambah data pemesanan ",
-      content: <FormPage customer={customer} />,
+      title: (<>
+          <span className="flex items-center gap-1 text-muted-foreground font-medium">
+            <IconCreditCardPay className="h-4 w-4" />
+            Form tambah data pembarayan
+          </span>
+        </>),
+      description: "Form tambah data pembayaran",
+      content: <FormPage />,
       size: "sm:max-w-2xl",
     });
   };
 
   return (
-    <div className="w-full ">
+    <div className="w-full">
       <div>
         <Button
           type="button"
@@ -101,7 +102,7 @@ export const DataTable = ({ data, customer }: DataTableProps) => {
           onClick={() => showModalAdd()}
         >
           <PlusIcon />
-          Tambah pemesanan
+          Tambah pembayaran
         </Button>
       </div>
       <div className="flex items-center py-4">

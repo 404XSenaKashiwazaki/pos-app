@@ -5,7 +5,7 @@ import { Modal } from "../Modal";
 
 interface ModalOptions {
   title?: string;
-  description?: string;
+  description?: string | React.ReactNode;
   body?: React.ReactNode;
   size?: string;
 }

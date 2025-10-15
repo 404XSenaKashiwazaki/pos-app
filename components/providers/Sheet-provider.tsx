@@ -8,49 +8,42 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import SheetComponent from "../Sheet";
 
 interface openSheetProps {
   content: ReactNode;
-  title?: string;
-  description?: string;
+  title?: string | React.ReactNode;
+  description?: string | React.ReactNode;
+  size?: string;
 }
 type SheetContextType = {
-  open: boolean,
-  setOpen:  React.Dispatch<React.SetStateAction<boolean>>
-  sheet: (opt: openSheetProps) => void
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  sheet: (opt: openSheetProps) => void;
 };
 
 const SheetContext = createContext<SheetContextType | undefined>(undefined);
 
 export function SheetProvider({ children }: { children: ReactNode }) {
-  
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<openSheetProps | null>(null);
 
-
   const sheet = (options: openSheetProps) => {
-    setOptions(options)
+    setOptions(options);
     setOpen(true);
   };
 
-
   return (
-    <SheetContext.Provider value={{ sheet, open, setOpen}}>
+    <SheetContext.Provider value={{ sheet, open, setOpen }}>
       {children}
-
-      {/* Global Sheet */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-lg">
-          <SheetHeader>
-            {options?.title && <SheetTitle>{options.title}</SheetTitle>}
-            {options?.description && (
-              <SheetDescription>{options.description}</SheetDescription>
-            )}
-          </SheetHeader>
-
-          <div className="mt-4">{options?.content}</div>
-        </SheetContent>
-      </Sheet>
+      <SheetComponent
+        open={open}
+        onOpenChange={setOpen}
+        title={options?.title}
+        body={options?.content}
+        description={options?.description}
+        size={options?.size}
+      />
     </SheetContext.Provider>
   );
 }

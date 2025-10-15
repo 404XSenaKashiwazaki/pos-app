@@ -14,9 +14,120 @@ export const formCustomerSchema = z.object({
 export const formHargaJenisSchema = z.object({
   name: z.string().min(1, { message: "Nama wajib di isi." }),
   description: z.string().min(1, { message: "Deskripsi wajib di isi." }),
-  basePrice: z.union([z.string().min(1, { message: "Harga awal wajib di isi." })]),
-  pricePerArea: z.union([z.string().min(1, { message: "Harga per area wajib di isi." })]),
-  pricePerColor: z.union([z.string().min(1, { message: "Harga warna wajib di isi." })]),
+  basePrice: z.union([
+    z.string().min(1, { message: "Harga awal wajib di isi." }),
+  ]),
+  pricePerArea: z.union([
+    z.string().min(1, { message: "Harga per area wajib di isi." }),
+  ]),
+  pricePerColor: z.union([
+    z.string().min(1, { message: "Harga warna wajib di isi." }),
+  ]),
   notes: z.string().optional(),
-  isAtive: z.boolean().optional()
+  isAtive: z.boolean().optional(),
+});
+
+export const formOrderSchema = z.object({
+  // tb order /tb order item/ tb paryment
+  orderNumber: z.string().min(1, "Order number wajib di isi."),
+  customerId: z.string().min(1, "Customer number wajib di isi."), //tb design/tb order
+  handleById: z.string().optional(),
+  createdAt: z
+    .union([z.string(), z.date(), z.undefined()])
+    .default(new Date())
+    .optional(),
+  product: z.string().min(1, "Produk/barang  wajib di isi."),
+  color: z.string().min(1, "Warna wajib di isi."),
+  unitPrice: z
+    .string()
+    .min(1, "Harga per unit wajib di isi.")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 0;
+      },
+      {
+        message: "Harga per unit tidak boleh negatif.",
+      }
+    )
+    .refine(
+      (v) => {
+        return Number(v) === 0 ? false : true;
+      },
+      {
+        message: "Harga tidak boleh 0.",
+      }
+    ),
+  quantity: z
+    .string()
+    .min(1, "Jumlah wajib di isi.")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 0;
+      },
+      {
+        message: "Jumlah tidak boleh negatif.",
+      }
+    )
+    .refine(
+      (v) => {
+        return Number(v) === 0 ? false : true;
+      },
+      {
+        message: "Jumlah tidak boleh 0.",
+      }
+    ),
+  totalAmount: z
+    .string()
+    .min(1, "Sub total wajib di isi.")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return !isNaN(num) && num >= 0;
+      },
+      {
+        message: "Sub total tidak boleh negatif.",
+      }
+    )
+    .refine(
+      (v) => {
+        return Number(v) === 0 ? false : true;
+      },
+      {
+        message: "Sub total tidak boleh 0.",
+      }
+    ),
+  notes: z.string().optional(),
+  status: z.string().min(1, "Status pemesanan wajib di isi."),
+  size: z.string().min(1, "Ukuran wajib di isi."),
+  // tb design
+  filename: z.union([
+    z.file(),
+    z.string(),
+  ]).optional(),
+  previewUrl: z.string().optional(),
+  productionDue: z
+    .union([z.string(), z.date()]),
+  //
+  name: z.string().min(1, "Nama pemesan file wajib di isi."),
+  phone: z.string().min(1, "Nomor hp pemesan file wajib di isi."),
+  address: z.string().min(1, "Alamat pemesan wajib di isi."),
+  email: z
+    .email({ message: "Email pemesan tidak valid" })
+    .min(1, "Email pemesan wajib di isi."),
+});
+
+export const formPaymentSchema = z.object({
+  orderId: z.string(),
+  amount: z.string(),
+  notes: z.string().optional(),
+  method: z.string().min(1, "Metode pembayaran wajib di isi."),
+  status: z.string(),
+  type: z.string(),
+  reference: z.string(),
+  paidAt: z.string(),
+  processedBy: z.string(),
+  discontAmount: z.string().optional(),
+  shippingFee: z.string().optional(),
 });

@@ -1,112 +1,269 @@
 "use server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendResponse } from "@/lib/response";
+import { getFilePath, removeFile, uploadFile } from "@/lib/uploadFile";
 import { type Response } from "@/types/response";
-import { formCustomerSchema } from "@/types/zod";
-import { Customer } from "@prisma/client";
+import { formCustomerSchema, formOrderSchema } from "@/types/zod";
+import { Customer, Order, OrderStatus } from "@prisma/client";
+import { exists, existsSync } from "fs";
+import { unlink, writeFile } from "fs/promises";
 import { revalidatePath } from "next/cache";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
-export const addCustomer = async (
+export const addOrder = async (
   formdata: FormData
-): Promise<Response<Customer>> => {
+): Promise<Response<Order>> => {
+  const currentLogin = await auth();
   const raw = {
     name: formdata.get("name"),
     phone: formdata.get("phone"),
     email: formdata.get("email"),
     address: formdata.get("address"),
     notes: formdata.get("notes"),
+    customerId: formdata.get("customerId"),
+    product: formdata.get("product"),
+    color: formdata.get("color"),
+    filename: formdata.get("filename"),
+    status: formdata.get("status"),
+    createdAt: formdata.get("createdAt"),
+    unitPrice: formdata.get("unitPrice"),
+    quantity: formdata.get("quanatity"),
+    totalAmount: formdata.get("totalAmount"),
+    orderNumber: formdata.get("orderNumber"),
+    size: formdata.get("size"),
+    productionDue: formdata.get("productionDue"),
   };
 
-  const parseData = formCustomerSchema.safeParse(raw);
-
+  const parseData = formOrderSchema.safeParse(raw);
   if (!parseData.success)
     return sendResponse({
       success: false,
-      message: "Gagal mendapatkan data pelanggan",
+      message: "Gagal mendapatkan data pemesanan",
       error: parseData.error,
     });
   const { data } = parseData;
+  const file = formdata.get("filename") as File | null;
+  let fileName = "";
+  let fileUrl = "";
+  let filePreview = ""
+  if (file) {
+    const fileUpload = await uploadFile(file, "uploads");
+    fileName = fileUpload.fileName;
+    fileUrl = fileUpload.fileUrl;
+    filePreview = fileUpload.fileUrl
+  } else {
+    fileName = process.env.PREVIEW_IMAGE as string;
+    fileUrl = process.env.PREVIEW_IMAGE_URL as string;
+  }
+  console.log({ fileUrl: process.env.PREVIEW_IMAGE_URL as string});
+  
   try {
-    const res = await prisma.customer.create({
-      data: { ...data },
+    await prisma.order.create({
+      data: {
+        customerId: data.customerId,
+        orderNumber: data.orderNumber,
+        totalAmount: data.totalAmount,
+        createdAt: data.createdAt,
+        createdById: currentLogin?.user.id,
+        notes: data.notes,
+        status: (data.status as OrderStatus) || OrderStatus.PENDING,
+        productionDue: data.productionDue,
+        items: {
+          create: {
+            product: data.product,
+            subtotal: data.totalAmount,
+            unitPrice: data.unitPrice,
+            color: data.color,
+            notes: data.notes,
+            quantity: Number(data.quantity),
+            size: data.size,
+          },
+        },
+        designs: {
+          create: {
+            filename: fileName,
+            fileUrl: fileUrl,
+            previewUrl: fileUrl,
+            uploadedBy: currentLogin?.user.id,
+          },
+        },
+      },
     });
-    revalidatePath("/pelanggan");
+    revalidatePath("/pemesanan");
     return sendResponse({
       success: true,
-      message: "Berhasil menambahkan data pelanggan",
-      data: res,
+      message: "Berhasil menambahkan data pemesanan",
     });
   } catch (error) {
+    const filePath = getFilePath(fileUrl);
+    if (
+      file &&
+      fileName !== (process.env.PREVIEW_IMAGE as string) &&
+      existsSync(filePath)
+    ){
+      console.log("remove file");
+      await removeFile(filePath);
+    }
+      
     console.log({ error });
-
     return sendResponse({
       success: false,
-      message: "Gagal menambahkan data pelanggan",
+      message: "Gagal menambahkan data pemesanan",
     });
   }
 };
 
-export const updateCustomer = async (id: string, formdata: FormData) => {
+export const updateOrder = async (id: string, formdata: FormData) => {
+  const currentLogin = await auth();
   const raw = {
     name: formdata.get("name"),
     phone: formdata.get("phone"),
     email: formdata.get("email"),
     address: formdata.get("address"),
     notes: formdata.get("notes"),
+    customerId: formdata.get("customerId"),
+    product: formdata.get("product"),
+    color: formdata.get("color"),
+    filename: formdata.get("filename"),
+    status: formdata.get("status"),
+    createdAt: formdata.get("createdAt"),
+    unitPrice: formdata.get("unitPrice"),
+    quantity: formdata.get("quanatity"),
+    totalAmount: formdata.get("totalAmount"),
+    orderNumber: formdata.get("orderNumber"),
+    size: formdata.get("size"),
+    productionDue: formdata.get("productionDue"),
   };
 
-  const parseData = formCustomerSchema.safeParse(raw);
+  const parseData = formOrderSchema.safeParse(raw);
   if (!parseData.success)
     return sendResponse({
       success: false,
-      message: "Gagal mendapatkan data pelanggan",
+      message: "Gagal mendapatkan data pemesanan",
       error: parseData.error,
     });
+  const file = formdata.get("filename") as File | null;
+  let fileName = "";
+  let fileUrl = "";
+  const dataInDb = await prisma.order.findUnique({
+    where: { id },
+    include: { items: true, designs: true },
+  });
+  if (!dataInDb)
+    return sendResponse({
+      success: false,
+      message: "Gagal mendapatkan data pemesanan",
+    });
   try {
-    const customerInDb = await prisma.customer.findUnique({ where: { id } });
-    if (!customerInDb)
-      return sendResponse({
-        success: false,
-        message: "Gagal mendapatkan data pelanggan",
-      });
     const { data } = parseData;
-    await prisma.customer.update({ data: { ...data }, where: { id } });
-    revalidatePath("/pelanggan");
+    console.log({ file });
+
+    if (!file) {
+      fileName = dataInDb.designs[0].filename;
+      fileUrl = dataInDb.designs[0].fileUrl;
+
+    } else {
+      const filePath = getFilePath(dataInDb.designs[0].fileUrl);
+      const fileUpload = await uploadFile(file, "uploads");
+      fileName = fileUpload.fileName;
+      fileUrl = fileUpload.fileUrl;
+      if (
+        dataInDb.designs[0].filename !==
+          (process.env.PREVIEW_IMAGE as string) &&
+        existsSync(filePath)
+      ) {
+        console.log("remove file");
+        await removeFile(filePath);
+      }
+    }
+
+    await prisma.$transaction([
+      prisma.order.update({
+        data: {
+          customerId: data.customerId,
+          orderNumber: data.orderNumber,
+          totalAmount: data.totalAmount,
+          createdAt: data.createdAt,
+          createdById: currentLogin?.user.id,
+          notes: data.notes,
+          status: (data.status as OrderStatus) || OrderStatus.PENDING,
+          productionDue: data.productionDue,
+          designs: {
+            update: {
+              where: { id: dataInDb.designs[0].id },
+              data: {
+                filename: fileName,
+                fileUrl: fileUrl,
+                previewUrl: fileUrl,
+                uploadedBy: currentLogin?.user.id,
+              },
+            },
+          },
+          items: {
+            update: {
+              where: { id: dataInDb.items[0].id },
+              data: {
+                product: data.product,
+                subtotal: data.totalAmount,
+                unitPrice: data.unitPrice,
+                color: data.color,
+                notes: data.notes,
+                quantity: Number(data.quantity),
+                size: data.size,
+              },
+            },
+          },
+        },
+        where: { id },
+      }),
+    ]);
+    revalidatePath("/pemesanan");
     return sendResponse({
       success: true,
-      message: "Berhasil mengupdate data pelanggan",
+      message: "Berhasil mengupdate data pemesanan",
     });
   } catch (error) {
+    const filePath = getFilePath(fileUrl);
+    if (
+      file &&
+      (fileName !== (process.env.PREVIEW_IMAGE as string) ||
+        dataInDb.designs[0].filename !==
+          (process.env.PREVIEW_IMAGE as string)) &&
+      existsSync(filePath)
+    ) {
+      await removeFile(filePath)
+      console.log("remove file");
+    }
     console.log({ error });
 
     return sendResponse({
       success: false,
-      message: "Gagal mengupdate data pelanggan",
+      message: "Gagal mengupdate data pemesanan",
     });
   }
 };
-export const deleteCustomer = async (
-  id: string
-): Promise<Response<Customer>> => {
+export const deleteOrder = async (id: string): Promise<Response<Order>> => {
   try {
-    const customerInDb = await prisma.customer.findUnique({ where: { id } });
-    if (!customerInDb)
+    const dataInDb = await prisma.order.findUnique({ where: { id } });
+    if (!dataInDb)
       return sendResponse({
         success: false,
-        message: "Gagal mendapatkan data c",
+        message: "Gagal mendapatkan data order",
       });
     await prisma.customer.delete({ where: { id } });
-    revalidatePath("pelanggan");
+    revalidatePath("pemesanan");
     return sendResponse({
       success: true,
-      message: "Berhasil menghapus data c",
+      message: "Berhasil menghapus data order",
     });
   } catch (error) {
     console.log({ error });
 
     return sendResponse({
       success: false,
-      message: "Gagal menghapus data c",
+      message: "Gagal menghapus data order",
     });
   }
 };

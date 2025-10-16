@@ -173,9 +173,7 @@ const FormPage = ({
   };
 
   const deleteFileImagePreview = () => {
-    alert("afa");
-    setFile(null);
-    setPreview(null);
+    setPreview(process.env.NEXT_PUBLIC_PREVIEW ?? null);
   };
 
   const getOrderNumber = async () => {

@@ -3,8 +3,10 @@ import Profile from "./components/profile";
 
 const Page = () => {
   return (
-    <div className="">
-      <Profile />
+    <div className="container mx-auto py-10">
+      <div className="w-full">
+        <Profile />
+      </div>
     </div>
   );
 };

@@ -165,3 +165,14 @@ export const formProfileSchema = z.object({
   image: z.union([z.file(), z.string()]).optional(),
   imageUrl: z.string().optional(),
 });
+
+export const formReportDateSchema = z
+  .object({
+    startDate: z.date({ message: "Tanggal mulai wajib diisi" }),
+    endDate: z.date({ message: "Tanggal akhir wajib diisi" }),
+  })
+
+  .refine((data) => data.endDate >= data.startDate, {
+    message: "Tanggal akhir tidak boleh sebelum tanggal mulai",
+    path: ["endDate"],
+  });

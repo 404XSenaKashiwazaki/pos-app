@@ -56,6 +56,7 @@ import {
 import Image from "next/image";
 import previewImg from "@/public/preview.jpg";
 import { formatCurrency } from "@/lib/formatCurrency";
+import { projectCompilationEventsSubscribe } from "next/dist/build/swc/generated-native";
 
 interface FormOrderProps {
   id?: string | null;
@@ -130,7 +131,7 @@ const FormPage = ({
       }
     } catch (error) {
       setLoading(false);
-      toast.error("Opsss.....")
+      toast.error("Opsss.....");
     }
   };
 
@@ -138,9 +139,7 @@ const FormPage = ({
     orders.find((e) => String(e.id) === id);
 
   const deleteFileImagePreview = () => {
-    alert("afa");
-    setFile(null);
-    setPreview(null);
+    setPreview(process.env.NEXT_PUBLIC_PREVIEW ?? null);
   };
 
   return (

@@ -13,7 +13,6 @@ import {
   IconPencil,
   IconPhone,
   IconShieldExclamation,
-  IconUserCircle,
   IconUserEdit,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,6 @@ const ProfileCard = () => {
   const { data: session, update } = useSession();
   const { sheet } = useSheet();
   if (!session?.user) return null;
-  console.log({ session });
 
   const handleButtonEditClick = () => {
     sheet({

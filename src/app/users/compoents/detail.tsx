@@ -24,7 +24,7 @@ interface DetailPembelianProps {
   id: string | null;
 }
 
-const DetailUser = ({ id }: DetailPembelianProps) => {
+const DetailPage = ({ id }: DetailPembelianProps) => {
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState<User | null>(null);
   useEffect(() => {
@@ -72,4 +72,4 @@ const DetailUser = ({ id }: DetailPembelianProps) => {
   );
 };
 
-export default DetailUser;
+export default DetailPage;

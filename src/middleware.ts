@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 export default async function middleware(request: NextRequest) {
   const currentUrl = request.nextUrl.pathname;
-  const protedtedRoute = ["/", "/dashboard", "/akun", "/users"];
+  const protedtedRoute = ["/", "/dashboard", "/pengaturan", "/users", "/pembayaran","/pemesanan","/produksi","/harga-jenis","/laporan"];
   const isLogin = await auth();
 
   if (!isLogin && protedtedRoute.includes(currentUrl)) {

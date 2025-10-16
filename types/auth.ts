@@ -7,8 +7,9 @@ declare module "next-auth" {
 
   interface User {
     role?: string | null;
-    alamat?: string | null;
-    no_hp?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    imageUrl?: string | null;
   }
 }
 
@@ -17,8 +18,9 @@ import { JWT } from "next-auth/jwt";
 declare module "next-auth/jwt" {
   interface JWT {
     role?: string | null;
-    alamat?: string | null;
-    no_hp?: string | null;
+    address?: string | null;
+    phone?: string | null;
     sub: string;
+    imageUrl?: string | null;
   }
 }

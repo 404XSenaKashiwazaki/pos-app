@@ -124,7 +124,7 @@ export const updatePayment = async (
     });
   if (!file) {
     fileName = dataInDb.filename ?? (process.env.PREVIEW_IMAGE as string);
-    fileUrl = dataInDb.reference ?? (process.env.PREVIEW_IMAGE as string);
+    fileUrl = dataInDb.reference ?? (process.env.PREVIEW_IMAGE_URL as string);
   } else {
     if (file instanceof File) {
       const filePath = getFilePath(dataInDb.reference ?? "");
@@ -140,7 +140,7 @@ export const updatePayment = async (
       }
     } else {
       fileName = dataInDb.filename ?? (process.env.PREVIEW_IMAGE as string);
-      fileUrl = dataInDb.reference ?? (process.env.PREVIEW_IMAGE as string);
+      fileUrl = dataInDb.reference ?? (process.env.PREVIEW_IMAGE_URL as string);
     }
   }
 

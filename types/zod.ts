@@ -154,3 +154,14 @@ export const formPaymentSchema = z.object({
     .default(new Date())
     .optional(),
 });
+
+export const formProfileSchema = z.object({
+  name: z.string().min(1, { message: "Nama wajib di isi." }),
+  phone: z
+    .string()
+    .min(11, { message: "Nomor hp wajib di isi dan minimal 11 karakter" })
+    .max(12, { message: "Nomor hp maksimal 12 karakter." }),
+  address: z.string().min(1, { message: "Alamat wajib di isi." }),
+  image: z.union([z.file(), z.string()]).optional(),
+  imageUrl: z.string().optional(),
+});

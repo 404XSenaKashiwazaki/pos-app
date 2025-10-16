@@ -130,6 +130,7 @@ const FormPage = ({
       }
     } catch (error) {
       setLoading(false);
+      toast.error("Opsss.....")
     }
   };
 

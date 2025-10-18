@@ -30,3 +30,15 @@ export type ColumnPaymentTypeDefProps = Omit<
   }>,
   "updatedAt"
 >;
+
+
+export type ColumnProductionTypeDefProps = Omit<
+  Prisma.ProductionGetPayload<{
+    include: {
+      orderItem: true,
+      assignedTo: true,
+      sablonType: true
+    };
+  }>,
+  "updatedAt"
+>;

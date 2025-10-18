@@ -78,6 +78,11 @@ export const addOrder = async (
             notes: data.notes,
             quantity: Number(data.quantity),
             size: data.size,
+            production: {
+              create: {
+                assignedToId: currentLogin?.user.id
+              }
+            }
           },
         },
         designs: {
@@ -88,6 +93,7 @@ export const addOrder = async (
             uploadedBy: currentLogin?.user.id,
           },
         },
+
       },
     });
     revalidatePath("/pemesanan");

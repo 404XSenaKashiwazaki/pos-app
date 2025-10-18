@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentStatus } from "@prisma/client";
+import { OrderStatus, PaymentStatus, ProductionStatus } from "@prisma/client";
 import * as z from "zod";
 
 export const formCustomerSchema = z.object({
@@ -200,3 +200,20 @@ export const formReportStatusPaymentSchema = z
     message: "Tanggal akhir tidak boleh sebelum tanggal mulai",
     path: ["endDate"],
   });
+
+export const formProductionSchema = z.object({
+  assignedToId: z.string().min(1, "Yang mengerjakan wajib di isi."),
+  sablonTypeId: z.string().min(1, "Type sablon wajib di isi."),
+  startDate: z.date({ message: "Tanggal mulai pengerjaan wajib diisi." }),
+  endDate: z.date({ message: "Tanggal selesai pengerjaan  wajib diisi." }),
+  progress: z.number().min(1,"Progres pengerjaan"),
+
+  status: z.union([
+    z.enum(Object.values(ProductionStatus), {
+      error: "Status produksi tidak valid.",
+    }),
+    z.string().min(1, "Status produksi wajib di isi."),
+  ]),
+  fileProofUrl: z.union([z.file(), z.string()]).optional(),
+  notes: z.string().optional(),
+});

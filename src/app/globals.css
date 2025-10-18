@@ -76,6 +76,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-PENDING: #facc15;
+  --color-CONFIRMED: #4ade80;
+  --color-PROCESSING: #60a5fa;
+  --color-PRINTING: #f472b6;
+  --color-FINISHING: #a78bfa;
+  --color-COMPLETED: #34d399;
+  --color-CANCELLED: #f50909;
+  --color-ON_HOLD: #94a3b8;
 }
 
 .dark {

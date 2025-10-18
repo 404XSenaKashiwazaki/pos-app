@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/card";
 import { formatFile } from "@/lib/formatFile";
 import { createOrderNumber } from "@/lib/createOrderNumber";
-import DateInput from "@/components/dateInput";
+import DateInput from "@/components/DateInput";
 
 interface FormOrderProps {
   customer: Customer[];

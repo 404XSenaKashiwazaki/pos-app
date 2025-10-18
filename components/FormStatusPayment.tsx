@@ -13,6 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,46 +25,86 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { formReportDateSchema } from "@/types/zod";
+import { formReportStatusPaymentSchema } from "@/types/zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const statusOrders: string[] = Object.values(OrderStatus);
 const statusPayments: string[] = Object.values(PaymentStatus);
-
-interface ResportStatuProps {
+interface FormStatusPaymentProps {
   setStartDate: Dispatch<SetStateAction<Date>>;
   setEndDate: Dispatch<SetStateAction<Date>>;
   startDate: Date;
   endDate: Date;
+  paymentStatus: PaymentStatus | string;
+  setPaymentStatus: Dispatch<SetStateAction<PaymentStatus | string>>;
 }
-
-const ResportStatu = ({
-  startDate,
+const FormStatusPayment = ({
   endDate,
   setStartDate,
+  paymentStatus,
   setEndDate,
-}: ResportStatuProps) => {
-  const form = useForm<z.infer<typeof formReportDateSchema>>({
-    resolver: zodResolver(formReportDateSchema),
+  startDate,
+  setPaymentStatus
+}: FormStatusPaymentProps) => {
+
+  const form = useForm<z.infer<typeof formReportStatusPaymentSchema>>({
+    resolver: zodResolver(formReportStatusPaymentSchema),
     defaultValues: {
       startDate,
       endDate,
+      statusPayment: paymentStatus ?? "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof formReportDateSchema>) {
-    setStartDate(data.startDate);
-    setEndDate(data.endDate);
+  function onSubmit(values: z.infer<typeof formReportStatusPaymentSchema>) {
+    setStartDate(values.startDate);
+    setEndDate(values.endDate);
+    setPaymentStatus(values.statusPayment);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="flex items-end gap-2 w-full max-w-md">
+        <div className="flex flex-col md:flex-row items-end gap-2 w-full mb-10">
+          <FormField
+            control={form.control}
+            name="statusPayment"
+            render={({ field }) => (
+              <FormItem className="w-full min-w-50 max-w-min-w-50 relative flex flex-col mb-2 md:mb-0 flex-1">
+                <FormLabel>Status pembayaran</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  defaultValue={field.value}
+                >
+                  <FormControl className="w-full">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih status laporan pembayaran" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {statusPayments.map((e) => (
+                      <SelectItem key={e} value={e}>
+                        {e}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage className="absolute -bottom-4 text-xs text-destructive" />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="startDate"
             render={({ field }) => (
-              <FormItem className="relative flex flex-col flex-1">
+              <FormItem className="w-full relative flex flex-col flex-1">
                 <FormLabel>Tanggal mulai</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -96,7 +137,7 @@ const ResportStatu = ({
                     />
                   </PopoverContent>
                 </Popover>
-                <FormMessage className="absolute -bottom-5 text-xs text-destructive" />
+                <FormMessage className="absolute -bottom-8 text-xs text-destructive" />
               </FormItem>
             )}
           />
@@ -104,7 +145,7 @@ const ResportStatu = ({
             control={form.control}
             name="endDate"
             render={({ field }) => (
-              <FormItem className="relative flex flex-col flex-1">
+              <FormItem className="w-full relative flex flex-col flex-1">
                 <FormLabel>Tanggal akhir</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -137,7 +178,7 @@ const ResportStatu = ({
                     />
                   </PopoverContent>
                 </Popover>
-                <FormMessage className="absolute -bottom-5 text-xs text-destructive" />
+                <FormMessage className="absolute -bottom-8 text-xs text-destructive" />
               </FormItem>
             )}
           />
@@ -150,4 +191,4 @@ const ResportStatu = ({
   );
 };
 
-export default ResportStatu;
+export default FormStatusPayment;

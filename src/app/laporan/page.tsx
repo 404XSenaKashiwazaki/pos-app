@@ -1,14 +1,10 @@
 import React from "react";
-import ReportStatus from "./components/reportStatus";
-import ReportDate from "./components/reportDate";
+import CardReport from "./card-report";
 
 const Page = () => {
   return (
     <div className="container mx-auto py-10">
-      <div className="w-full">
-        <ReportStatus />
-        <ReportDate />
-      </div>
+      <CardReport />
     </div>
   );
 };

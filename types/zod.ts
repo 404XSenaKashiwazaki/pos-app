@@ -1,3 +1,4 @@
+import { OrderStatus, PaymentStatus } from "@prisma/client";
 import * as z from "zod";
 
 export const formCustomerSchema = z.object({
@@ -166,10 +167,33 @@ export const formProfileSchema = z.object({
   imageUrl: z.string().optional(),
 });
 
-export const formReportDateSchema = z
+export const formReportStatusOrderSchema = z
   .object({
-    startDate: z.date({ message: "Tanggal mulai wajib diisi" }),
-    endDate: z.date({ message: "Tanggal akhir wajib diisi" }),
+    startDate: z.date({ message: "Tanggal mulai wajib diisi." }),
+    endDate: z.date({ message: "Tanggal akhir wajib diisi." }),
+    statusOrder: z.union([
+      z.enum(Object.values(OrderStatus), {
+        error: "Status pemesanan tidak valid.",
+      }),
+      z.string().min(1, "Status pemesanan wajib di isi."),
+    ]),
+  })
+
+  .refine((data) => data.endDate >= data.startDate, {
+    message: "Tanggal akhir tidak boleh sebelum tanggal mulai",
+    path: ["endDate"],
+  });
+
+export const formReportStatusPaymentSchema = z
+  .object({
+    startDate: z.date({ message: "Tanggal mulai wajib diisi." }),
+    endDate: z.date({ message: "Tanggal akhir wajib diisi." }),
+    statusPayment: z.union([
+      z.enum(Object.values(PaymentStatus), {
+        error: "Status pembayaran tidak valid.",
+      }),
+      z.string().min(1, "Status pembayaran wajib di isi."),
+    ]),
   })
 
   .refine((data) => data.endDate >= data.startDate, {

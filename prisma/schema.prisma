@@ -28,6 +28,7 @@ model User {
   upload        Design[]
   payment       Payment[]
   actor         OrderLog[]
+  production Production[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -162,7 +163,10 @@ model OrderItem {
   subtotal   String @db.VarChar(255)
   size       String?  
   color      String?  
-  notes      String?
+  notes      String? 
+  printArea   String? 
+  colorCount  Int? @default(1)
+  production Production?
   createdAt  DateTime @default(now())
 
   @@index([orderId])
@@ -251,6 +255,40 @@ model SablonType {
   isActive       Boolean   @default(true)    
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-
+  production Production[]
   @@index([isActive])
+}
+
+model Production {
+  id             String        @id @default(cuid())
+  orderItemId String @unique
+orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+
+  assignedToId   String?   
+  assignedTo     User?         @relation(fields: [assignedToId], references: [id])
+  
+  sablonTypeId String?      
+sablonType   SablonType?   @relation(fields: [sablonTypeId], references: [id])
+
+
+  startDate      DateTime?     
+  endDate        DateTime?     
+  progress       Int?          @default(0) 
+  
+  status         ProductionStatus @default(WAITING)
+  notes          String?        
+  fileProofUrl   String?     
+  
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+}
+
+enum ProductionStatus {
+  WAITING       
+  IN_PROGRESS    
+  PAUSED         
+  FINISHED       
+  DELIVERED      
+  CANCELED       
 }

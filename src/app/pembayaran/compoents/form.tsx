@@ -1,12 +1,5 @@
 "use client";
-import React, {
-  Dispatch,
-  SetStateAction,
-  startTransition,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,7 +14,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useModal } from "@/components/providers/Modal-provider";
 import { SaveAllIcon, Trash2Icon, X } from "lucide-react";
 import { formPaymentSchema } from "@/types/zod";
 import { toast } from "sonner";
@@ -33,19 +25,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { addPayment, updatePayment } from "../actions";
-import { Textarea } from "@/components/ui/textarea";
-import { IconCreditCardPay } from "@tabler/icons-react";
 import { useSheet } from "@/components/providers/Sheet-provider";
-import DateInput from "@/components/dateInput";
+import DateInput from "@/components/DateInput";
 import {
-  Order,
   PaymentMethod,
   PaymentStatus,
   PaymentType,
   Prisma,
 } from "@prisma/client";
-import { Label } from "recharts";
-import { formatFile } from "@/lib/formatFile";
+
 import {
   Card,
   CardAction,
@@ -56,7 +44,6 @@ import {
 import Image from "next/image";
 import previewImg from "@/public/preview.jpg";
 import { formatCurrency } from "@/lib/formatCurrency";
-import { projectCompilationEventsSubscribe } from "next/dist/build/swc/generated-native";
 
 interface FormOrderProps {
   id?: string | null;
@@ -87,9 +74,7 @@ const FormPage = ({
   const [preview, setPreview] = useState<string | null>(
     (reference as string) ?? null
   );
-  const [file, setFile] = useState<string | null | File>(
-    formatFile(reference ?? "") ?? null
-  );
+
   const [loading, setLoading] = useState(false);
   const { setOpen } = useSheet();
   const form = useForm<z.infer<typeof formPaymentSchema>>({

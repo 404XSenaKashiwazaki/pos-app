@@ -1,0 +1,282 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  username      String?         @unique
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  imageUrl      String?
+  phone         String?
+  address       String?
+  accounts      Account[]
+  sessions      Session[]
+  Authenticator Authenticator[]
+  role          UserRole  @default(STAFF)
+  createdOrders Order[]   @relation("OrderCreatedBy")
+  handledOrders Order[]   @relation("OrderHandledBy")
+  upload        Design[]
+  payment       Payment[]
+  actor         OrderLog[]
+  production    Production[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?   @unique
+  address   String?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  orders    Order[]   // ikut terhapus karena Order.customer punya onDelete: Cascade
+}
+
+model Order {
+  id             String          @id @default(cuid())
+  orderNumber    String          @unique
+  customerId     String
+  customer       Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdById    String?
+  createdBy      User?           @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  handledById    String?
+  handledBy      User?           @relation("OrderHandledBy", fields: [handledById], references: [id])
+  notes          String?
+  totalAmount    String          @db.VarChar(255)
+  shippingFee    String?         @db.VarChar(255)
+  discountAmount String?         @db.VarChar(255)
+  status         OrderStatus     @default(PENDING)
+  productionDue  DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  canceledAt     DateTime?
+
+  items          OrderItem[]
+  payments       Payment[]
+  designs        Design[]
+  logs           OrderLog[]
+
+  @@index([customerId])
+  @@index([status])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  PRINTING
+  FINISHING
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+model OrderItem {
+  id         String     @id @default(cuid())
+  orderId    String
+  order      Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    String
+  sku        String?
+  quantity   Int        @default(1)
+  unitPrice  String     @db.VarChar(255)
+  subtotal   String     @db.VarChar(255)
+  size       String?
+  color      String?
+  notes      String?
+  printArea  String?
+  colorCount Int?       @default(1)
+  production Production?
+  createdAt  DateTime   @default(now())
+
+  @@index([orderId])
+}
+
+model Design {
+  id          String    @id @default(cuid())
+  orderId     String
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  filename    String
+  fileUrl     String
+  previewUrl  String?
+  sizeKb      Int?
+  uploadedBy  String?
+  uploader    User?     @relation(fields: [uploadedBy], references: [id])
+  notes       String?
+  createdAt   DateTime  @default(now())
+
+  @@index([orderId])
+}
+
+model Payment {
+  id           String    @id @default(cuid())
+  orderId      String
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount       String    @db.VarChar(255)
+  method       PaymentMethod
+  type         PaymentType
+  status       PaymentStatus @default(PENDING)
+  reference    String
+  filename     String
+  paidAt       DateTime?
+  notes        String?
+  processedBy  String?
+  processor    User?     @relation(fields: [processedBy], references: [id])
+  createdAt    DateTime  @default(now())
+
+  @@index([orderId])
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  OVERRIDES
+  E_WALLET
+  CARD
+}
+
+enum PaymentType {
+  DP
+  FINAL
+  INSTALLMENT
+  REFUND
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model OrderLog {
+  id         String       @id @default(cuid())
+  orderId    String
+  order      Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  actorId    String?
+  actor      User?        @relation(fields: [actorId], references: [id])
+  fromStatus OrderStatus?
+  toStatus   OrderStatus?
+  note       String?
+  createdAt  DateTime     @default(now())
+
+  @@index([orderId])
+}
+
+model SablonType {
+  id             String       @id @default(cuid())
+  name           String       @unique
+  description    String?
+  basePrice      String       @db.VarChar(255)
+  pricePerColor  String?
+  pricePerArea   String?
+  notes          String?
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  production     Production[]
+  @@index([isActive])
+}
+
+model Production {
+  id             String        @id @default(cuid())
+  orderItemId    String        @unique
+  orderItem      OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  assignedToId   String?
+  assignedTo     User?         @relation(fields: [assignedToId], references: [id])
+  sablonTypeId   String?
+  sablonType     SablonType?   @relation(fields: [sablonTypeId], references: [id], onDelete: Cascade)
+  startDate      DateTime?
+  endDate        DateTime?
+  progress       Int?          @default(0)
+  status         ProductionStatus @default(WAITING)
+  notes          String?
+   filename     String? 
+  fileProofUrl   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum ProductionStatus {
+  WAITING
+  IN_PROGRESS
+  PAUSED
+  FINISHED
+  DELIVERED
+  CANCELED
+}

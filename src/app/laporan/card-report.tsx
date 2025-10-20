@@ -5,7 +5,7 @@ import ReportStatusPayment from "./components/reportStatusPayment";
 
 const CardReport = () => {
   return (
-    <div className="flex flex-col lg:justify-between lg:flex-row gap-1">
+    <div className="flex flex-col gap-1">
       <ReportStatusOrder />
       <ReportStatusPayment />
     </div>

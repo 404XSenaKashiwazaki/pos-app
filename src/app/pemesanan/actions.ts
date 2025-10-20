@@ -286,16 +286,27 @@ export const deleteOrder = async (id: string): Promise<Response<Order>> => {
       where: { id },
       include: { designs: true, payments: true },
     });
-    console.log({ dataInDb });
 
     if (!dataInDb)
       return sendResponse({
         success: false,
-        message: "Gagal mendapatkan data order",
+        message: "Gagal mendapatkan data pemesanan",
       });
     const filePath = getFilePath(dataInDb.designs[0].fileUrl);
+    const payments = dataInDb.payments;
+    if (payments && Array.isArray(payments) && payments.length > 1) {
+      payments.forEach(async (e) => {
+        if (
+           e.filename !==
+            (process.env.PREVIEW_IMAGE as string) &&
+          existsSync(filePath)
+        ) {
+          await removeFile(getFilePath(e.reference));
+          console.log("remove file");
+        }
+      });
+    }
     await prisma.order.delete({ where: { id } });
-
     if (
       dataInDb.designs[0].filename !== (process.env.PREVIEW_IMAGE as string) &&
       existsSync(filePath)
@@ -306,14 +317,14 @@ export const deleteOrder = async (id: string): Promise<Response<Order>> => {
     revalidatePath("pemesanan");
     return sendResponse({
       success: true,
-      message: "Berhasil menghapus data order",
+      message: "Berhasil menghapus data pemesanan",
     });
   } catch (error) {
     console.log({ error });
 
     return sendResponse({
       success: false,
-      message: "Gagal menghapus data order",
+      message: "Gagal menghapus data pemesanan",
     });
   }
 };

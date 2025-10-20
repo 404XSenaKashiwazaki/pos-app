@@ -189,7 +189,7 @@ export const deletePayment = async (id: string): Promise<Response<Payment>> => {
     if (!dataInDb)
       return sendResponse({
         success: false,
-        message: "Gagal mendapatkan data payment",
+        message: "Gagal mendapatkan data pembayaran",
       });
     await prisma.payment.delete({ where: { id } });
     const filePath = getFilePath(dataInDb.reference);
@@ -203,14 +203,14 @@ export const deletePayment = async (id: string): Promise<Response<Payment>> => {
     revalidatePath("pembayaran");
     return sendResponse({
       success: true,
-      message: "Berhasil menghapus data payment",
+      message: "Berhasil menghapus data pembayaran",
     });
   } catch (error) {
     console.log({ error });
 
     return sendResponse({
       success: false,
-      message: "Gagal menghapus data payment",
+      message: "Gagal menghapus data pembayaran",
     });
   }
 };

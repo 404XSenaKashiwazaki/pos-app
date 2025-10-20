@@ -17,7 +17,7 @@ import { useModal } from "@/components/providers/Modal-provider";
 import { ColumnProductionTypeDefProps } from "@/types/datatable";
 import FormPage from "./form";
 import DetailPage from "./detail";
-import { deletePayment } from "../actions";
+import { deleteProduction } from "../actions";
 import { Customer, Prisma, SablonType, User } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -41,7 +41,7 @@ const CellAction = ({ row, handle, sablon }: CellActionProps) => {
     if (!id) return;
     try {
       setLoading(true);
-      const { success, message, error } = await deletePayment(id);
+      const { success, message, error } = await deleteProduction(id);
       if (success) {
         setLoading(false);
         setOpen(false);
@@ -54,7 +54,7 @@ const CellAction = ({ row, handle, sablon }: CellActionProps) => {
 
       if (error) {
         setLoading(false);
-        toast.error(error.message);
+        toast.error("Ops...");
       }
     } catch (error) {
       setLoading(false);
@@ -81,6 +81,7 @@ const CellAction = ({ row, handle, sablon }: CellActionProps) => {
             <Button
               variant="destructive"
               size={"sm"}
+              disabled={loading ? true : false}
               onClick={() => deleteData()}
             >
               <Trash2Icon />
@@ -140,14 +141,14 @@ const CellAction = ({ row, handle, sablon }: CellActionProps) => {
         <Edit2Icon />
         Edit
       </Button>
-      <Button
+      {/* <Button
         variant="destructive"
         size={"sm"}
         onClick={() => showModalDelete()}
       >
         <Trash2Icon />
         Hapus
-      </Button>
+      </Button> */}
     </div>
   );
 };
@@ -212,6 +213,23 @@ export const columns = ({
     },
     cell: ({ row }) => (
       <div className="">{format(row.getValue("startDate"), "PPP")}</div>
+    ),
+  },
+  {
+    accessorKey: "endDate",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tanggal selesai
+          <ArrowUpDown />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="">{format(row.getValue("endDate"), "PPP")}</div>
     ),
   },
   {

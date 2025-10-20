@@ -3,8 +3,6 @@ import { NextResponse, NextRequest } from "next/server";
 
 export default async function middleware(request: NextRequest) {
   const currentUrl = request.nextUrl.pathname;
-  console.log({ nextURL : request.nextUrl});
-  
   const protedtedRoute = ["/", "/dashboard", "/pengaturan", "/users", "/pembayaran","/pemesanan","/produksi","/harga-jenis","/laporan"];
   const isLogin = await auth();
 

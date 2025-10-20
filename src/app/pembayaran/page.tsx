@@ -3,7 +3,11 @@ import { getPayments } from "./queries";
 import DataTable from "./compoents/data-table";
 import { getOrders } from "../pemesanan/queries";
 import { prisma } from "@/lib/prisma";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: `${(process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".","") ?? ``} - Pembayaran`,
+};
 const Page = async () => {
   const { data } = await getPayments();
   const orders = await prisma.order.findMany({

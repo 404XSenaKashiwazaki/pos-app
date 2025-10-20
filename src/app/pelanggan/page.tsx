@@ -1,7 +1,11 @@
 import React from "react";
 import { getCustomers } from "./queries";
 import DataTable from "./compoents/data-table";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: `${(process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".","") ?? ``} - Pelanggan`,
+};
 const Page = async () => {
   const { data } = await getCustomers();
 

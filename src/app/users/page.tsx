@@ -1,14 +1,20 @@
 import React from "react";
 import { getUsers } from "./queries";
 import DataTable from "./compoents/data-table";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: `${
+    (process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".", "") ?? ``
+  } - Users`,
+};
 const Page = async () => {
-  const { data } = await getUsers()
-if(!data || data?.length === 0) return null
+  const { data } = await getUsers();
+  if (!data || data?.length === 0) return null;
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-      <DataTable data={data}/>
+        <DataTable data={data} />
       </div>
     </div>
   );

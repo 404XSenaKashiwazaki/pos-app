@@ -4,7 +4,11 @@ import DataTable from "./compoents/data-table";
 import { getCustomers } from "../pelanggan/queries";
 import { getUsers } from "../users/queries";
 import { getHargaJenis } from "../harga-jenis/queries";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: `${(process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".","") ?? ``} - Pemesanan`,
+};
 const Page = async () => {
   const { data } = await getOrders();
   const { data: customers } = await getCustomers();

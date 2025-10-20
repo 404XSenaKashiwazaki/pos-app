@@ -100,7 +100,7 @@ export const DataTable = ({ data, orders }: DataTableProps) => {
           type="button"
           variant={"default"}
           size={"sm"}
-          disabled={orders.length > 1 ? false : true }
+          disabled={orders.length === 0 ? true : false }
           onClick={() => showModalAdd()}
         >
           <PlusIcon />

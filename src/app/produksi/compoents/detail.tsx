@@ -4,11 +4,13 @@ import {
   IconAddressBook,
   IconBuilding,
   IconBuildingStore,
+  IconCalendar,
   IconMail,
   IconNotebook,
   IconPackage,
   IconPencil,
   IconPhone,
+  IconProgress,
   IconUserCircle,
 } from "@tabler/icons-react";
 import React, { useEffect, useState, useTransition } from "react";
@@ -42,14 +44,10 @@ const DetailPage = ({ id }: DetailPageProps) => {
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <span className="flex items-center gap-1 text-muted-foreground font-medium">
-          <IconUserCircle className="h-4 w-4" />
-          Data Pelanggan
-        </span>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconPencil className="h-4 w-4" />
-            Nama:
+            <IconUserCircle className="h-4 w-4" />
+            Yang mengerjakan:
           </span>
           <span className="font-medium text-primary">
             {data.assignedTo?.name ?? "-"}
@@ -57,29 +55,40 @@ const DetailPage = ({ id }: DetailPageProps) => {
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconPhone className="h-4 w-4" />
-            No hp:
+            <IconProgress className="h-4 w-4" />
+            Progress:
           </span>
           <span className="font-medium text-primary">
-            { "-"}
+            {
+              data.progress+"%"
+            }
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconMail className="h-4 w-4" />
-            Email:
+            <IconCalendar className="h-4 w-4" />
+            Tanggal mulai:
           </span>
           <span className="font-medium text-primary">
-            { "-"}
+            { format(data.startDate ?? "", "PPP") ?? "-"}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconAddressBook className="h-4 w-4" />
-            Alamat:
+            <IconCalendar className="h-4 w-4" />
+            Tanggal selesai:
           </span>
           <span className="font-medium text-primary">
-            {"-"}
+            { format(data.endDate ?? "", "PPP") ?? "-"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between text-sm ">
+          <span className="flex items-center gap-1 text-muted-foreground">
+            <IconProgress className="h-4 w-4" />
+            Status:
+          </span>
+          <span className="font-medium text-primary">
+            {data.status ?? "-"}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">

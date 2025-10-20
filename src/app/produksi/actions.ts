@@ -68,8 +68,8 @@ console.log({ parseData: parseData.error});
       fileName = fileUpload.fileName;
       fileUrl = fileUpload.fileUrl;
       if (
-        dataInDb.fileProofUrl !== (process.env.PREVIEW_IMAGE as string) &&
-        existsSync(filePath)
+        dataInDb.filename !== (process.env.PREVIEW_IMAGE as string) &&
+        existsSync(filePath) && dataInDb.fileProofUrl
       ) {
         console.log("remove file");
         await removeFile(filePath);

@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 const data = {
   user: {
@@ -176,6 +177,8 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
+  const pathname = usePathname() ?? "/";
+  
   if (!session) return null;
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -195,7 +198,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} pathname={pathname} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={Object(session?.user)} />

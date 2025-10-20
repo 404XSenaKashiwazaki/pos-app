@@ -13,13 +13,14 @@ import Link from "next/link";
 
 export function NavMain({
   items,
+  pathname
 }: {
   items: {
     title: string;
     url: string;
     icon?: Icon;
   }[];
-}) {
+} & {   pathname: string }) {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -30,9 +31,13 @@ export function NavMain({
         </SidebarMenu>
         <SidebarMenu>
           {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
+            <SidebarMenuItem key={item.title} >
               <Link href={item.url}>
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton tooltip={item.title} className={`flex items-center gap-2 transition-colors ${
+                  item.url === pathname
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-slate-200"
+                    : "hover:bg-muted"
+                }`}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>

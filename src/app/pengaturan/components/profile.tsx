@@ -68,7 +68,7 @@ const ProfileCard = () => {
               width={100}
               height={100}
               priority
-              className="rounded-full mb-4  w-20"
+              className="rounded-full mb-4  w-full h-full max-w-20 max-h-20"
             />
           </div>
 

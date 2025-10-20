@@ -44,6 +44,7 @@ import {
 import Image from "next/image";
 import previewImg from "@/public/preview.jpg";
 import { formatCurrency } from "@/lib/formatCurrency";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FormOrderProps {
   id?: string | null;
@@ -66,6 +67,7 @@ const FormPage = ({
   reference,
   status,
   type,
+  notes,
 }: Partial<z.infer<typeof formPaymentSchema>> & FormOrderProps) => {
   const [remainingPayment, setRemainingPayment] = useState<
     string | number | null
@@ -87,6 +89,7 @@ const FormPage = ({
       reference: reference ?? "",
       status: status ?? "",
       type: type ?? "",
+      notes: notes ?? ""
     },
   });
 
@@ -100,6 +103,7 @@ const FormPage = ({
     formData.append("type", values.type);
     formData.append("status", values.status);
     formData.append("reference", values.reference);
+    formData.append("notes",values.notes ?? "")
     try {
       setLoading(true);
       const { success, message } = id
@@ -180,7 +184,7 @@ const FormPage = ({
                   <FormMessage />
                   <FormDescription>
                     Untuk mengisi form pembayaran, silahkan pilih pemesan
-                    terlebih dahulu
+                    terlebih dahulu. Orderan/pemesanan yang sudah lunas tidak akan tampil.
                   </FormDescription>
                 </FormItem>
               )}
@@ -369,7 +373,6 @@ const FormPage = ({
                 </FormItem>
               )}
             />
-
             <Card className="rounded-sm w-full">
               <CardHeader>
                 <CardTitle>Preview bukti pembayaran</CardTitle>
@@ -397,17 +400,40 @@ const FormPage = ({
               </CardContent>
             </Card>
           </div>
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Catatan</FormLabel>
+                <FormControl>
+                  <Textarea
+                    className="w-full"
+                    placeholder="Catatan"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className=" text-xs text-destructive min-h-[20px]" />
+              </FormItem>
+            )}
+          />
           <div className="flex md:flex-row flex-col justify-end gap-2 mt-10 mb-6">
             <Button
               type="button"
               variant="outline"
               size={"sm"}
+              disabled={loading ? true : false}
               onClick={() => setOpen(false)}
             >
               <X />
               Batal
             </Button>
-            <Button type="submit" variant="destructive" size={"sm"}>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={loading ? true : false}
+              size={"sm"}
+            >
               <SaveAllIcon />
               {loading ? "Memproses..." : "Simpan"}
             </Button>

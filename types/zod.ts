@@ -159,6 +159,7 @@ export const formPaymentSchema = z.object({
     .union([z.string(), z.date(), z.undefined()])
     .default(new Date())
     .optional(),
+  notes: z.string().optional(),
 });
 
 export const formProfileSchema = z.object({
@@ -207,7 +208,7 @@ export const formReportStatusPaymentSchema = z
   });
 
 export const formProductionSchema = z.object({
-  orderItemId : z.string().min(1, "Order wajib di isi."),
+  orderItemId: z.string().min(1, "Order wajib di isi."),
   assignedToId: z.string().min(1, "Yang mengerjakan wajib di isi."),
   sablonTypeId: z.string().min(1, "Type sablon wajib di isi."),
   startDate: z

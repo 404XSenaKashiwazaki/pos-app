@@ -9,20 +9,18 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useModal } from "@/components/providers/Modal-provider";
-
 import { ColumnPaymentTypeDefProps } from "@/types/datatable";
 import FormPage from "./form";
 import DetailPage from "./detail";
 import { deletePayment } from "../actions";
-import { Customer, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { formatCurrency } from "@/lib/formatCurrency";
-import { IconCreditCardPay, IconMoneybagPlus } from "@tabler/icons-react";
+import { IconCreditCardPay } from "@tabler/icons-react";
 import { useSheet } from "@/components/providers/Sheet-provider";
 
 interface CellActionProps {
@@ -82,6 +80,7 @@ const CellAction = ({ row, orders }: CellActionProps) => {
             <Button
               variant="destructive"
               size={"sm"}
+              disabled={loading ? true : false}
               onClick={() => deleteData()}
             >
               <Trash2Icon />
@@ -113,6 +112,7 @@ const CellAction = ({ row, orders }: CellActionProps) => {
           status={row.original.status ?? ""}
           type={row.original.type}
           orders={orders}
+          notes={row.original.notes ?? ""}
         />
       ),
       size: "sm:max-w-2xl",

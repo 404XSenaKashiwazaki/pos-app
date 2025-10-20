@@ -64,6 +64,7 @@ export const addPayment = async (
         processedBy: currentLogin?.user.id,
         reference: fileUrl,
         filename: fileName,
+        notes: data.notes
       },
     });
     revalidatePath("/pembayaran");
@@ -155,6 +156,7 @@ export const updatePayment = async (
         paidAt: data.paidAt,
         reference: fileUrl,
         filename: fileName,
+        notes: data.notes
       },
       where: { id },
     });

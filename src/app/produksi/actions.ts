@@ -64,7 +64,7 @@ export const updateProduction = async (
   } else {
     if (file instanceof File) {
       const filePath = getFilePath(dataInDb.fileProofUrl ?? "");
-      const fileUpload = await uploadFile(file, "payments");
+      const fileUpload = await uploadFile(file, "productions");
       fileName = fileUpload.fileName;
       fileUrl = fileUpload.fileUrl;
       if (

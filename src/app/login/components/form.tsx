@@ -16,9 +16,9 @@ const Form = () => {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
   return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="#" className="flex items-center gap-2 self-center font-medium">
+    <div className="flex min-h-screen flex-col items-center justify-center ">
+      <div className="flex w-full max-w-sm flex-col gap-5">
+        <a className="flex items-center gap-2 self-center font-medium">
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <GalleryVerticalEnd className="size-4" />
           </div>
@@ -26,14 +26,14 @@ const Form = () => {
         </a>
         {/*  */}
         <Card className="w-full max-w-sm mx-auto ">
-          <form className="" action={login.bind(null, redirect)}>
+          <form action={login.bind(null, redirect)}>
             <CardHeader>
               <CardTitle>Login </CardTitle>
               <CardDescription>
                 Silahkan login menggunakan akun Google
               </CardDescription>
             </CardHeader>
-            <CardFooter className="flex-col gap-2 py-2">
+            <CardFooter className="flex-col gap-2 py-2 mt-5">
               <Button type="submit" variant="default" className="w-full">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path

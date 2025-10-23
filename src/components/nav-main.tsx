@@ -21,6 +21,8 @@ export function NavMain({
     icon?: Icon;
   }[];
 } & {   pathname: string }) {
+
+  
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -34,7 +36,7 @@ export function NavMain({
             <SidebarMenuItem key={item.title} >
               <Link href={item.url}>
                 <SidebarMenuButton tooltip={item.title} className={`flex items-center gap-2 transition-colors ${
-                  item.url === pathname
+                  (item.url === pathname || (item.url === "/dashboard" && pathname === "/"))
                     ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-slate-200"
                     : "hover:bg-muted"
                 }`}>

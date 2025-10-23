@@ -1,7 +1,16 @@
 import React from "react";
+import Dashboard from "@/app/dashboard/page"
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: `${
+    (process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".", "") ?? ``
+  } - Dashboard`,
+};
 const Page = () => {
-  return <div>Page</div>;
+  return <div>
+    <Dashboard />    
+  </div>;
 };
 
 export default Page;

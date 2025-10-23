@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import React, { Suspense } from "react";
-import { getDashboards } from "./queries";
+import { getDashboards, getDataForChart } from "./queries";
 import CardDashboard from "./components/card-dashboard";
 import DashboardChart from "./components/chart";
 export const metadata: Metadata = {
@@ -9,8 +9,12 @@ export const metadata: Metadata = {
   } - Dashboard`,
 };
 
+
 const Page = async () => {
   const { data } = await getDashboards();
+  const { data: dataChart } = await getDataForChart()
+
+  
   if (!data) return null;
 
   const { totalRevenue, activeProductions, totalOrders, paidPayments } = data;
@@ -24,7 +28,7 @@ const Page = async () => {
             totalOrders={totalOrders}
             totalRevenue={totalRevenue}
           />
-          <DashboardChart />   {/*  masih statik chart */}
+          <DashboardChart  data={dataChart ?? []} />   {/*  masih statik chart */}
         
         </Suspense>
       </div>

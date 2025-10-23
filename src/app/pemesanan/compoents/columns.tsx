@@ -83,8 +83,7 @@ const CellAction = ({ row, customer, handle, sablon }: CellActionProps) => {
       ),
     });
   };
-  console.log({row});
-  
+
 
   const showModalEdit = () => {
     sheet({

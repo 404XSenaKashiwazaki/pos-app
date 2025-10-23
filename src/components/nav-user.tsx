@@ -90,10 +90,10 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <Link href="/akun">
+              <Link href="/pengaturan">
                 <DropdownMenuItem>
                   <IconUserCircle />
-                  Akun
+                  Pengaturan
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuGroup>

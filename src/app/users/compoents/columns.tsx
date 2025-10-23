@@ -18,7 +18,6 @@ import FormCustomer from "./form";
 import DetailCustomer from "./detail";
 import { deleteUser } from "../actions";
 
-
 const CellAction = ({ row }: { row: Row<ColumnUserDefProps> }) => {
   const [loading, setLoading] = useState(false);
   const { modal, setOpen } = useModal();
@@ -28,14 +27,21 @@ const CellAction = ({ row }: { row: Row<ColumnUserDefProps> }) => {
     if (!id) return;
     try {
       setLoading(true);
-      const { success, message } = await deleteUser(id);
-      if (success)
+      const { success, message, error } = await deleteUser(id);
+      if (success) {
+        setLoading(false);
+        setOpen(false);
         toast("Sukses", {
           description: message,
           position: "top-right",
           closeButton: true,
         });
-      setOpen(false);
+      }
+
+      if (error) {
+        setLoading(false);
+        toast.error("Ops...");
+      }
     } finally {
       setLoading(false);
     }

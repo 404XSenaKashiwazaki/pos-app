@@ -40,16 +40,22 @@ const CellAction = ({ row, customer, handle, sablon }: CellActionProps) => {
     if (!id) return;
     try {
       setLoading(true);
-      const { success, message } = await deleteOrder(id);
-      if (success)
+      const { success, message, error } = await deleteOrder(id);
+      if (success) {
+        setLoading(false);
+        setOpen(false);
         toast("Sukses", {
           description: message,
           position: "top-right",
           closeButton: true,
         });
-      setOpen(false);
+      }
+      if (error) {
+        setLoading(false);
+        toast.error("Ops...");
+      }
     } finally {
-      toast.error("Ops...")
+      toast.error("Ops...");
       setLoading(false);
     }
   };
@@ -83,7 +89,6 @@ const CellAction = ({ row, customer, handle, sablon }: CellActionProps) => {
       ),
     });
   };
-
 
   const showModalEdit = () => {
     sheet({

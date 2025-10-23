@@ -28,14 +28,21 @@ const CellAction = ({ row }: { row: Row<ColumnPelangganDefProps> }) => {
     if (!id) return;
     try {
       setLoading(true);
-      const { success, message } = await deleteCustomer(id);
-      if (success)
+      const { success, message, error } = await deleteCustomer(id);
+      if (success) {
+        setLoading(false);
+        setOpen(false);
         toast("Sukses", {
           description: message,
           position: "top-right",
           closeButton: true,
         });
-      setOpen(false);
+      }
+
+      if (error) {
+        setLoading(false);
+        toast.error("Ops...");
+      }
     } finally {
       setLoading(false);
     }
@@ -167,9 +174,7 @@ export const columns = (): ColumnDef<ColumnPelangganDefProps>[] => [
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="">{row.getValue("email")}</div>
-    ),
+    cell: ({ row }) => <div className="">{row.getValue("email")}</div>,
   },
 
   {

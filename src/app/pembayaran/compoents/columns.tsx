@@ -53,7 +53,7 @@ const CellAction = ({ row, orders }: CellActionProps) => {
 
       if (error) {
         setLoading(false);
-        toast.error(error.message);
+        toast.error("Ops...");
       }
     } catch (error) {
       setLoading(false);

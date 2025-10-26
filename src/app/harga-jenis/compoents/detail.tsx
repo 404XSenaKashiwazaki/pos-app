@@ -34,28 +34,19 @@ const DetailHargaJenis = ({ id }: DetailHargaJenisProps) => {
     });
   }, []);
 
-
   if (!data) return null;
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <span className="flex items-center gap-1 text-muted-foreground font-medium">
-          <IconUserCircle className="h-4 w-4" />
-          Data Pelanggan
-        </span>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconPencil className="h-4 w-4" />
             Nama:
           </span>
-          <span className="font-medium text-primary">
-            {data.name ?? "-"}
-          </span>
+          <span className="font-medium text-primary">{data.name ?? "-"}</span>
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconPhone className="h-4 w-4" />
-            No hp:
+            Harga dasar:
           </span>
           <span className="font-medium text-primary">
             {Number(data.basePrice) ?? "-"}
@@ -63,8 +54,7 @@ const DetailHargaJenis = ({ id }: DetailHargaJenisProps) => {
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconMail className="h-4 w-4" />
-            Email:
+            Harga Per Warna :
           </span>
           <span className="font-medium text-primary">
             {Number(data.pricePerColor) ?? "-"}
@@ -72,21 +62,17 @@ const DetailHargaJenis = ({ id }: DetailHargaJenisProps) => {
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconAddressBook className="h-4 w-4" />
-            Alamat:
+            Deskripsi:
           </span>
           <span className="font-medium text-primary">
-            {Number(data.pricePerArea) ?? "-"}
+            {data.description ?? "-"}
           </span>
         </div>
         <div className="flex items-center justify-between text-sm ">
           <span className="flex items-center gap-1 text-muted-foreground">
-            <IconNotebook className="h-4 w-4" />
             Catatan:
           </span>
-          <span className="font-medium text-primary">
-            {data.notes ?? "-"}
-          </span>
+          <span className="font-medium text-primary">{data.notes ?? "-"}</span>
         </div>
       </div>
     </div>

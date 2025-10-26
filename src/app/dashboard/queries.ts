@@ -76,7 +76,6 @@ export const getDataForChart = async (): Promise<Response<Chart[]>> => {
 
     const resGroup: Record<string, Chart> = {};
     if (Array.isArray(res) && res.length > 0) {
-      const revenues = res.reduce((ac,curre) => ac + Number(curre.totalAmount),0)
       for (const val of res) {
         const date = val.createdAt.toISOString().split("T")[0]
         if(!resGroup[date]) resGroup[date] = {
@@ -84,7 +83,7 @@ export const getDataForChart = async (): Promise<Response<Chart[]>> => {
           orders: 0,
           revenue: 0
         }
-        resGroup[date].revenue = revenues
+        resGroup[date].revenue += Number(val.totalAmount)
         resGroup[date].orders += 1
       }
     }

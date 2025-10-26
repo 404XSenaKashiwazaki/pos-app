@@ -51,22 +51,35 @@ const FormStatusOrder = ({
   orderStatus,
   setEndDate,
   setOrderStatus,
-  setStartDate
-}:FormStatusOrderProps) => {
+  setStartDate,
+}: FormStatusOrderProps) => {
   const form = useForm<z.infer<typeof formReportStatusOrderSchema>>({
     resolver: zodResolver(formReportStatusOrderSchema),
     defaultValues: {
       startDate,
       endDate,
-      statusOrder: orderStatus ?? "",
+      statusOrder: orderStatus ?? "PENDING",
     },
   });
 
   function onSubmit(values: z.infer<typeof formReportStatusOrderSchema>) {
+    localStorage.setItem("reportStatus", values.statusOrder);
     setStartDate(values.startDate);
     setEndDate(values.endDate);
     setOrderStatus(values.statusOrder);
   }
+
+
+
+  useEffect(() => {
+    if (orderStatus && startDate && endDate)
+      form.reset({
+        endDate,
+        startDate,
+        statusOrder: orderStatus,
+      });
+  }, [orderStatus, startDate, endDate, form]);
+
 
   return (
     <Form {...form}>
@@ -79,10 +92,9 @@ const FormStatusOrder = ({
               <FormItem className="w-full min-w-50 max-w-min-w-50 relative flex flex-col mb-2 md:mb-0 flex-1">
                 <FormLabel>Status pemesanan</FormLabel>
                 <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  defaultValue={field.value}
+                  key={field.value} //catatatn force select ui yang tidak terselect default //
+                  onValueChange={field.onChange}
+                  value={field.value}
                 >
                   <FormControl className="w-full">
                     <SelectTrigger>
@@ -91,7 +103,7 @@ const FormStatusOrder = ({
                   </FormControl>
                   <SelectContent>
                     {statusOrders.map((e) => (
-                      <SelectItem key={e} value={e}>
+                      <SelectItem key={e} value={String(e)}>
                         {e}
                       </SelectItem>
                     ))}

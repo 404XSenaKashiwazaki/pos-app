@@ -14,10 +14,9 @@ const Page = async () => {
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-          <Suspense fallback={<div>Loading...</div>}>
-                  <DataTable data={data} />
-                </Suspense>
-        
+        <Suspense fallback={<div>Loading...</div>}>
+          <DataTable data={data} />
+        </Suspense>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { getUsers } from "./queries";
 import DataTable from "./compoents/data-table";
 import { Metadata } from "next";
@@ -14,7 +14,10 @@ const Page = async () => {
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-        <DataTable data={data} />
+          <Suspense fallback={<div>Loading...</div>}>
+                  <DataTable data={data} />
+                </Suspense>
+        
       </div>
     </div>
   );

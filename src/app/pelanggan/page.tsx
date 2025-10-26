@@ -1,10 +1,12 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { getCustomers } from "./queries";
 import DataTable from "./compoents/data-table";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: `${(process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".","") ?? ``} - Pelanggan`,
+  title: `${
+    (process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".", "") ?? ``
+  } - Pelanggan`,
 };
 const Page = async () => {
   const { data } = await getCustomers();
@@ -12,7 +14,9 @@ const Page = async () => {
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-        <DataTable data={data ?? []} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <DataTable data={data ?? []} />
+        </Suspense>
       </div>
     </div>
   );

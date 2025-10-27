@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { useSheet } from "@/components/providers/Sheet-provider";
 import { IconShoppingCartPlus } from "@tabler/icons-react";
+import { formatDateID } from "@/lib/formatDateID";
 
 interface CellActionProps {
   row: Row<ColumnOrderTypeDefProps>;
@@ -226,9 +227,9 @@ export const columns = ({
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="">{format(row.getValue("createdAt"), "PPP")}</div>
-    ),
+    cell: ({ row }) => {
+      return <div className="">{format(row.getValue("createdAt"), "PPP")}</div>;
+    },
   },
   {
     accessorKey: "productionDue",

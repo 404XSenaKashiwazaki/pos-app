@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendResponse } from "@/lib/response";
 import { Response } from "@/types/response";
+import { format } from "date-fns";
 
 export interface Dashboards {
   totalRevenue: number;
@@ -55,8 +56,6 @@ export const getDashboards = async (): Promise<Response<Dashboards>> => {
   }
 };
 
-
-
 export interface Chart {
   date: string;
   revenue: number;
@@ -72,19 +71,25 @@ export const getDataForChart = async (): Promise<Response<Chart[]>> => {
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
+
 
     const resGroup: Record<string, Chart> = {};
     if (Array.isArray(res) && res.length > 0) {
       for (const val of res) {
-        const date = val.createdAt.toISOString().split("T")[0]
-        if(!resGroup[date]) resGroup[date] = {
-          date,
-          orders: 0,
-          revenue: 0
-        }
-        resGroup[date].revenue += Number(val.totalAmount)
-        resGroup[date].orders += 1
+        let date = val.createdAt.toISOString().split("T")[0];
+        
+        if (!resGroup[date])
+          resGroup[date] = {
+            date,
+            orders: 0,
+            revenue: 0,
+          };
+        resGroup[date].revenue += Number(val.totalAmount);
+        resGroup[date].orders += 1;
       }
     }
 

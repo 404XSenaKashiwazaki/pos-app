@@ -26,7 +26,6 @@ export const getOrdersStatus = async (
     }>[]
   >
 > => {
-  console.log({ status });
 
   try {
     const resAll = await prisma.order.findMany({

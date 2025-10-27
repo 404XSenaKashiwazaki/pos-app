@@ -35,10 +35,9 @@ const ReportStatusOrder = () => {
   const [endDate, setEndDate] = useState<Date>(date);
   const [orderStatus, setOrderStatus] = useState<OrderStatus | string>(
     typeof window !== "undefined"
-      ? localStorage.getItem("eportStatus") ?? ""
+      ? localStorage.getItem("reportStatusOrder") ?? ""
       : ""
   );
-  const [orderDatas, setOderDatas] = useState<ByStatusOrdersToCard[]>();
   const [orders, setOrders] = useState<
     Prisma.OrderGetPayload<{
       include: { customer: true; items: true; payments: true };
@@ -68,7 +67,7 @@ const ReportStatusOrder = () => {
   };
 
   useEffect(() => {
-    setOrderStatus(localStorage.getItem("reportStatus") ?? "");
+    setOrderStatus(localStorage.getItem("reportStatusOrder") ?? "");
     if (orderStatus) {
       getAllStatusOrders();
     }

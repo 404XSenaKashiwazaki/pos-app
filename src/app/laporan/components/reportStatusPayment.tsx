@@ -1,7 +1,7 @@
 "use client";
 
 import FormStatusPayment from "@/components/FormStatusPayment";
-import {  PaymentStatus } from "@prisma/client";
+import { PaymentStatus } from "@prisma/client";
 import React, { useState } from "react";
 
 const ReportStatusPayment = () => {
@@ -11,7 +11,9 @@ const ReportStatusPayment = () => {
   );
   const [endDate, setEndDate] = useState<Date>(date);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | string>(
-    ""
+    typeof window !== "undefined"
+      ? localStorage.getItem("reportStatusPayment") ?? ""
+      : ""
   );
 
   return (

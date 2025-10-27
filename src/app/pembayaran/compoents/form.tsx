@@ -45,9 +45,12 @@ import Image from "next/image";
 import previewImg from "@/public/preview.jpg";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { Textarea } from "@/components/ui/textarea";
+import { formatDateIDForm, toLocalDBFormat } from "@/lib/formatDateID";
+import { Badge } from "@/components/ui/badge";
 
 interface FormOrderProps {
   id?: string | null;
+  product?: string | null;
   orders: Prisma.OrderGetPayload<{
     include: { customer: true; items: true; payments: true };
   }>[];
@@ -68,28 +71,34 @@ const FormPage = ({
   status,
   type,
   notes,
+  product,
 }: Partial<z.infer<typeof formPaymentSchema>> & FormOrderProps) => {
   const [remainingPayment, setRemainingPayment] = useState<
     string | number | null
-  >();
-  const [paymentTotal, setPaymentTotal] = useState<string | number | null>();
+  >(id ? amount ?? null : null);
+  const [paymentTotal, setPaymentTotal] = useState<string | number | null>(
+    id ? amount ?? null : null
+  );
   const [preview, setPreview] = useState<string | null>(
     (reference as string) ?? null
   );
-
+  const [totalAmount, setTotalAmount] = useState(id ? amount : "");
   const [loading, setLoading] = useState(false);
   const { setOpen } = useSheet();
+  const [readonly, setReadonly] = useState(id ? false : true);
   const form = useForm<z.infer<typeof formPaymentSchema>>({
     resolver: zodResolver(formPaymentSchema),
     defaultValues: {
-      amount: amount ?? "",
+      amount: id ? amount : totalAmount ?? "",
       method: method ?? "",
-      paidAt: paidAt ? new Date(paidAt) : new Date().toISOString(),
+      paidAt: paidAt
+        ? formatDateIDForm(paidAt ?? "")
+        : new Date().toISOString(),
       orderId: orderId ?? "",
       reference: reference ?? "",
       status: status ?? "",
       type: type ?? "",
-      notes: notes ?? ""
+      notes: notes ?? "",
     },
   });
 
@@ -97,13 +106,16 @@ const FormPage = ({
     const formData = new FormData();
 
     formData.append("orderId", values.orderId);
-    formData.append("paidAt", new Date(values.paidAt ?? "").toISOString());
+    formData.append(
+      "paidAt",
+      toLocalDBFormat(new Date(values.paidAt ?? "")).toISOString()
+    );
     formData.append("amount", values.amount);
     formData.append("method", values.method);
     formData.append("type", values.type);
     formData.append("status", values.status);
     formData.append("reference", values.reference);
-    formData.append("notes",values.notes ?? "")
+    formData.append("notes", values.notes ?? "");
     try {
       setLoading(true);
       const { success, message } = id
@@ -136,59 +148,84 @@ const FormPage = ({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="mb-5 w-full">
-            <FormField
-              control={form.control}
-              name="orderId"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Pemesan dan produk pesanan</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue("orderId", value);
-                      const getCountAmount = findCustomerProduct(value);
-                      const amountTotal = getCountAmount?.totalAmount;
-                      if (getCountAmount?.payments.length !== 0) {
-                        const totalRemainingPayment =
-                          getCountAmount?.payments?.reduce(
-                            (sum, payment) =>
-                              sum + (Number(payment.amount) ?? 0),
-                            0
-                          );
-                        const amountRemaining =
-                          Number(amountTotal) - Number(totalRemainingPayment);
-                        setRemainingPayment(amountRemaining);
-
-                        form.setValue("amount", String(amountRemaining) ?? "");
-                      } else {
-                        form.setValue("amount", String(amountTotal) ?? "");
-                        setRemainingPayment(amountTotal);
-                      }
-                      setPaymentTotal(amountTotal);
-                    }}
-                    defaultValue={field.value}
+            {id ? (
+              <>
+                <div className="grid w-full items-center gap-0 m-0">
+                  <label
+                    htmlFor="remainingPayment"
+                    className="font-medium text-sm m-0"
                   >
-                    <FormControl className="w-full">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih pemesan dan produk yang dipesan" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {orders.map((e) => (
-                        <SelectItem key={e.id} value={e.id}>
-                          {e.customer.name} - {e.items[0].product}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                  <FormDescription>
-                    Untuk mengisi form pembayaran, silahkan pilih pemesan
-                    terlebih dahulu. Orderan/pemesanan yang sudah lunas tidak akan tampil.
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
+                    Pemesan dan produk pesanan
+                  </label>
+                  <Input
+                    readOnly
+                    id="remainingPayment"
+                    className="mt-0.5 w-full"
+                    placeholder="Total tagihan"
+                    value={product ?? ""}
+                  />
+                </div>
+              </>
+            ) : (
+              <FormField
+                control={form.control}
+                name="orderId"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Pemesan dan produk pesanan</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        setReadonly(false)
+                        field.onChange(value);
+                        form.setValue("orderId", value);
+                        const getCountAmount = findCustomerProduct(value);
+                        const amountTotal = getCountAmount?.totalAmount;
+                        if (getCountAmount?.payments.length !== 0) {
+                          const totalRemainingPayment =
+                            getCountAmount?.payments?.reduce(
+                              (sum, payment) =>
+                                sum + (Number(payment.amount) ?? 0),
+                              0
+                            );
+                          const amountRemaining =
+                            Number(amountTotal) - Number(totalRemainingPayment);
+                          setRemainingPayment(amountRemaining);
+
+                          form.setValue(
+                            "amount",
+                            String(amountRemaining) ?? ""
+                          );
+                        } else {
+                          form.setValue("amount", String(amountTotal) ?? "");
+                          if (amountTotal) setRemainingPayment(amountTotal);
+                        }
+                        if (amountTotal) setPaymentTotal(amountTotal);
+                      }}
+                      defaultValue={field.value}
+                    >
+                      <FormControl className="w-full">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih pemesan dan produk yang dipesan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {orders.map((e) => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.customer.name} - {e.items[0].product}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    <FormDescription>
+                      Untuk mengisi form pembayaran, silahkan pilih pemesan
+                      terlebih dahulu. Orderan/pemesanan yang sudah lunas tidak
+                      akan tampil.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
           <div className="flex flex-col md:justify-between md:flex-row items-start gap-1 ">
             <div className="grid w-full max-w-sm items-center gap-0 m-0">
@@ -222,30 +259,64 @@ const FormPage = ({
               />
             </div>
           </div>
-          <FormField
-            control={form.control}
-            name="amount"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Total pembayaran</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    className="w-full "
-                    placeholder="Total"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage className=" text-xs text-destructive min-h-[20px]" />
-                <FormDescription>
-                  Harap untuk mengisi total pembayaran sesuai sisa tagihan-
-                  {remainingPayment
-                    ? formatCurrency(Number(remainingPayment))
-                    : ""}
-                </FormDescription>
-              </FormItem>
-            )}
-          />
+          <div className="w-full">
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Total pembayaran</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      className="w-full "
+                      placeholder="Total"
+                      readOnly={readonly}
+                      value={totalAmount}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        field.onChange(e.target.value);
+                        setTotalAmount(e.target.value);
+                        if (paymentTotal) {
+                          const remainingAmount =
+                            Number(paymentTotal) - Number(value);
+                          setRemainingPayment(remainingAmount);
+
+                          if (value >= Number(paymentTotal)) {
+                            field.onChange(paymentTotal);
+                            setRemainingPayment(0);
+                            setReadonly(true);
+                          } else {
+                            setReadonly(false);
+                          }
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage className=" text-xs text-destructive min-h-[20px]" />
+                  <FormDescription>
+                    Harap untuk mengisi total pembayaran sesuai sisa tagihan-
+                    {remainingPayment
+                      ? formatCurrency(Number(remainingPayment))
+                      : "Rp 0"}
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setTotalAmount("");
+                form.setValue("amount", "");
+                setRemainingPayment(paymentTotal);
+                setReadonly(false);
+              }}
+            >
+              Reset input pembayaran
+            </Button>
+          </div>
+
           <div className="flex flex-col md:justify-between md:flex-row items-start gap-1 ">
             <FormField
               control={form.control}

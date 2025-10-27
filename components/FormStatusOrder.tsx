@@ -63,7 +63,7 @@ const FormStatusOrder = ({
   });
 
   function onSubmit(values: z.infer<typeof formReportStatusOrderSchema>) {
-    localStorage.setItem("reportStatus", values.statusOrder);
+    localStorage.setItem("reportStatusOrder", values.statusOrder);
     setStartDate(values.startDate);
     setEndDate(values.endDate);
     setOrderStatus(values.statusOrder);

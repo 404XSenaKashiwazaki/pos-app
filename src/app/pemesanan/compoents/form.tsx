@@ -47,11 +47,12 @@ import {
 } from "@/components/ui/card";
 import { createOrderNumber } from "@/lib/createOrderNumber";
 import DateInput from "@/components/DateInput";
+import { formatDateIDForm, toLocalDBFormat } from "@/lib/formatDateID";
 
 interface FormOrderProps {
   customer: Customer[];
- handle: User[];
-  sablon: SablonType[]; 
+  handle: User[];
+  sablon: SablonType[];
   id?: string | null;
 }
 
@@ -116,13 +117,15 @@ const FormPage = ({
       filename: "",
       status: status ?? "PENDING",
       notes: notes ?? "",
-      createdAt: createdAt ? new Date(createdAt) : new Date().toISOString(),
+      createdAt: createdAt
+        ? formatDateIDForm(createdAt ?? "")
+        : new Date().toISOString(),
       unitPrice: unitPrice ?? "",
       quantity: quantity ?? "",
       totalAmount: totalAmount ?? "",
       orderNumber: orderNumber ? orderNumber : orderNumberValue ?? "",
       productionDue: productionDue
-        ? new Date(productionDue)
+        ? formatDateIDForm(productionDue ?? "")
         : currentDate.toISOString(),
       colorCount: colorCount ?? "",
       printArea: printArea ?? "",
@@ -140,7 +143,7 @@ const FormPage = ({
     formData.append("status", values.status);
     formData.append(
       "createdAt",
-      new Date(values.createdAt ?? "").toISOString()
+      toLocalDBFormat(new Date(values.createdAt ?? "")).toISOString()
     );
     formData.append("size", values.size);
     formData.append("unitPrice", values.unitPrice);
@@ -153,12 +156,13 @@ const FormPage = ({
     formData.append("name", values.name ?? "");
     formData.append(
       "productionDue",
-      new Date(values.productionDue ?? "").toISOString()
+      toLocalDBFormat(new Date(values.productionDue ?? "")).toISOString()
     );
     formData.append("handleById", values.handleById);
     formData.append("sablonTypeId", values.sablonTypeId);
     formData.append("colorCount", values.colorCount);
     formData.append("printArea", values.printArea);
+
     try {
       setLoading(true);
       const { success, message, error } = id

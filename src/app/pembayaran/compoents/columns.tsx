@@ -113,6 +113,7 @@ const CellAction = ({ row, orders }: CellActionProps) => {
           type={row.original.type}
           orders={orders}
           notes={row.original.notes ?? ""}
+          product={row.original.order.items[0].product}
         />
       ),
       size: "sm:max-w-2xl",

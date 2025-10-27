@@ -159,7 +159,6 @@ export const updateOrder = async (
   };
 
   const parseData = formOrderSchema.safeParse(raw);
-  console.log({ parseData: parseData.error });
 
   if (!parseData.success)
     return sendResponse({
@@ -167,6 +166,7 @@ export const updateOrder = async (
       message: "Gagal mendapatkan data pemesanan",
       error: parseData.error,
     });
+
   const file = formdata.get("filename") as File | null;
   let fileName = "";
   let fileUrl = "";

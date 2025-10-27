@@ -46,6 +46,7 @@ import previewImg from "@/public/preview.jpg";
 import DateInput from "@/components/DateInput";
 import { useSheet } from "@/components/providers/Sheet-provider";
 import { updateProduction } from "../actions";
+import { formatDateIDForm, toLocalDBFormat } from "@/lib/formatDateID";
 const statusProduction: string[] = Object.values(ProductionStatus);
 
 interface FormPageProps {
@@ -79,9 +80,9 @@ const FormPage = ({
     defaultValues: {
       orderItemId: orderItemId,
       assignedToId: assignedToId ?? "",
-      endDate: endDate ? new Date(endDate) : currentDate.toISOString(),
+      endDate: endDate ? formatDateIDForm(endDate) : currentDate.toISOString(),
       progress: progress ?? "",
-      startDate: startDate ? new Date(startDate) : new Date().toISOString(),
+      startDate: startDate ? formatDateIDForm(startDate) : new Date().toISOString(),
       status: status ?? "",
       sablonTypeId: sablonTypeId ?? "",
       notes: notes ?? "",
@@ -90,15 +91,13 @@ const FormPage = ({
   });
 
   const onSubmit = async (values: z.infer<typeof formProductionSchema>) => {
-    console.log({ values });
-
     const formData = new FormData();
     formData.append("assignedToId", values.assignedToId);
     formData.append("orderItemId", values.orderItemId);
-    formData.append("endDate", new Date(values.endDate ?? "").toISOString());
+    formData.append("endDate", toLocalDBFormat(new Date(values.endDate ?? "")).toISOString());
     formData.append(
       "startDate",
-      new Date(values.startDate ?? "").toISOString()
+      toLocalDBFormat(new Date(values.startDate ?? "")).toISOString()
     );
     formData.append("progress", values.progress);
     formData.append("status", values.status);
@@ -108,7 +107,6 @@ const FormPage = ({
     if (!id) return;
     try {
       setLoading(true);
-
       const { success, message, error } = await updateProduction(id, formData);
       if (success) {
         setLoading(false);

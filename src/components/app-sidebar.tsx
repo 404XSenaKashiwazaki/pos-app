@@ -48,47 +48,56 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: IconDashboard,
+      activeUrl: ["/dashboard","/"]
     },
     {
       title: "Pemesanan",
       url: "/pemesanan",
       icon: IconShoppingCart,
+      activeUrl: ["/pemesanan"]
     },
     {
       title: "Pembayaran",
       url: "/pembayaran",
       icon: IconCreditCard,
+      activeUrl: ["/pembayaran"]
     },
     {
       title: "Produksi",
       url: "/produksi",
       icon: IconFolder,
+      activeUrl: ["/produksi"]
     },
     {
       title: "Pelanggan",
       url: "/pelanggan",
       icon: IconUsersGroup,
+      activeUrl: ["/pelanggan"]
     },
     {
       title: "Harga & Jenis",
       url: "/harga-jenis",
       icon: IconArchive,
+      activeUrl: ["/harga-jenis"]
     },
     {
       title: "Users ",
       url: "/users",
       icon: IconUsers,
+      activeUrl: ["/users"]
     },
     {
       title: "Laporan",
       url: "/laporan",
       icon: IconChartBar,
+      activeUrl: ["/laporan","/cetak"]
     },
 
     {
       title: "Pengaturan",
       url: "/pengaturan",
       icon: IconSettings,
+      activeUrl: ["/pengaturan"]
     },
   ],
   navClouds: [

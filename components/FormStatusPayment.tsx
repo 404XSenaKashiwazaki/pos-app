@@ -1,5 +1,5 @@
 "use client";
-import { OrderStatus, PaymentStatus } from "@prisma/client";
+import { PaymentStatus } from "@prisma/client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -49,23 +49,32 @@ const FormStatusPayment = ({
   paymentStatus,
   setEndDate,
   startDate,
-  setPaymentStatus
+  setPaymentStatus,
 }: FormStatusPaymentProps) => {
-
   const form = useForm<z.infer<typeof formReportStatusPaymentSchema>>({
     resolver: zodResolver(formReportStatusPaymentSchema),
     defaultValues: {
       startDate,
       endDate,
-      statusPayment: paymentStatus ?? "",
+      statusPayment: paymentStatus ?? "PENDING",
     },
   });
 
   function onSubmit(values: z.infer<typeof formReportStatusPaymentSchema>) {
+    localStorage.setItem("reportStatusPayments", values.statusPayment);
     setStartDate(values.startDate);
     setEndDate(values.endDate);
     setPaymentStatus(values.statusPayment);
   }
+
+  useEffect(() => {
+    if (paymentStatus && startDate && endDate)
+      form.reset({
+        endDate,
+        startDate,
+        statusPayment: paymentStatus,
+      });
+  }, [paymentStatus, startDate, endDate, form]);
 
   return (
     <Form {...form}>
@@ -78,12 +87,11 @@ const FormStatusPayment = ({
               <FormItem className="w-full min-w-50 max-w-min-w-50 relative flex flex-col mb-2 md:mb-0 flex-1">
                 <FormLabel>Status pembayaran</FormLabel>
                 <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                  defaultValue={field.value}
+                  key={field.value} //catatatn force select ui yang tidak terselect default //
+                  onValueChange={field.onChange}
+                  value={field.value}
                 >
-                  <FormControl className="w-full">
+                  <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status laporan pembayaran" />
                     </SelectTrigger>

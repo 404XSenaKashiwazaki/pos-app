@@ -3,7 +3,13 @@
 import { prisma } from "@/lib/prisma";
 import { sendResponse } from "@/lib/response";
 import { Response } from "@/types/response";
-import { Customer, Order, OrderStatus, Prisma } from "@prisma/client";
+import {
+  Customer,
+  Order,
+  OrderStatus,
+  PaymentStatus,
+  Prisma,
+} from "@prisma/client";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { getOrders } from "../pemesanan/queries";
 import { getCustomers } from "../pelanggan/queries";
@@ -15,7 +21,6 @@ export type ByStatusOrdersToCard = {
   countLastMonth: number;
   percent: number;
 };
-const statusOrders = Object.values(OrderStatus);
 
 export const getOrdersStatus = async (
   status: string
@@ -26,7 +31,6 @@ export const getOrdersStatus = async (
     }>[]
   >
 > => {
-
   try {
     const resAll = await prisma.order.findMany({
       where: {
@@ -49,67 +53,6 @@ export const getOrdersStatus = async (
     return sendResponse({
       success: false,
       message: "Gagal mendapatkan data pemesanan",
-    });
-  }
-};
-export const getByStatusOrdersToCard = async (): Promise<
-  Response<ByStatusOrdersToCard[]>
-> => {
-  const now = new Date();
-  const startThisMonth = startOfMonth(now);
-  const endThisMonth = endOfMonth(now);
-  const lastMonthDate = subMonths(now, 1);
-  const startLastMonth = startOfMonth(lastMonthDate);
-  const endLastMonth = endOfMonth(lastMonthDate);
-
-  try {
-    const resAll = await Promise.all(
-      statusOrders.map(async (status) => {
-        const [countCurrentMonth, countLastMonth] = await Promise.all([
-          prisma.order.count({
-            where: {
-              status,
-              createdAt: {
-                gte: startThisMonth,
-                lte: endThisMonth,
-              },
-            },
-          }),
-          prisma.order.count({
-            where: {
-              status,
-              createdAt: {
-                gte: startLastMonth,
-                lte: endLastMonth,
-              },
-            },
-          }),
-        ]);
-        let percent = 0;
-        if (countLastMonth === 0) {
-          percent = countCurrentMonth > 0 ? 100 : 0;
-        } else {
-          percent =
-            ((countCurrentMonth - countLastMonth) / countLastMonth) * 100;
-        }
-
-        return {
-          status,
-          countCurrentMonth,
-          countLastMonth,
-          percent: Number(percent.toFixed(1)),
-        };
-      })
-    );
-    return sendResponse({
-      success: true,
-      message: "Berhasil",
-      data: resAll,
-    });
-  } catch (error) {
-    return sendResponse({
-      success: false,
-      message: "Gagal mendapatkan data pembayaran",
     });
   }
 };
@@ -181,27 +124,106 @@ export const getByStatusOrdersToCart = async (): Promise<
   }
 };
 
-
-export const getByStatusPayment = async () => {};
-
-export type GetAllStatusOrdersTable = {
-  orders: ColumnOrderTypeDefProps[];
-  customers: Customer[];
-};
-export const getAllStatusOrdersTable = async (): Promise<
-  Response<GetAllStatusOrdersTable>
+export interface getByStatusPaymentsToCartRes {
+  date: string;
+  pending: number;
+  paid: number;
+  failed: number;
+  refunded: number;
+}
+export const getByStatusPaymentToCart = async (): Promise<
+  Response<getByStatusPaymentsToCartRes[]>
 > => {
-  const { data } = await getOrders();
-  const { data: customer } = await getCustomers();
-
+  const stats: Record<string, getByStatusPaymentsToCartRes> = {};
+  const statusMap: Record<PaymentStatus, keyof getByStatusPaymentsToCartRes> = {
+    PENDING: "pending",
+    PAID: "paid",
+    FAILED: "failed",
+    REFUNDED: "refunded",
+  };
   try {
+    const payments = await prisma.payment.findMany({
+      select: {
+        status: true,
+        createdAt: true,
+        paidAt: true,
+      },
+    });
+
+    for (const payment of payments) {
+      if (payment.paidAt) {
+        const date = payment.paidAt.toISOString().split("T")[0];
+
+        if (!stats[date]) {
+          stats[date] = {
+            date,
+            pending: 0,
+            paid: 0,
+            failed: 0,
+            refunded: 0,
+          };
+        }
+
+        const key = statusMap[payment.status];
+        (stats[date][key] as number) += 1;
+      }
+    }
+
     return sendResponse({
       success: true,
       message: "Berhasil",
-      data: {
-        orders: data ?? [],
-        customers: customer ?? [],
+      data: Object.values(stats).sort((a, b) => (a.date > b.date ? 1 : -1)),
+    });
+  } catch (error) {
+    return sendResponse({
+      success: false,
+      message: "Gagal mendapatkan data pembayaran",
+    });
+  }
+};
+
+export const getPaymentsStatus = async (
+  status: string
+): Promise<
+  Response<
+    Prisma.PaymentGetPayload<{
+      include: {
+        order: {
+          include: {
+            items: true;
+            customer: true
+          };
+        };
+      };
+    }>[]
+  >
+> => {
+  try {
+    const resAll = await prisma.payment.findMany({
+      where: {
+        status: (status as PaymentStatus) || PaymentStatus.PAID,
       },
+      include: {
+        order: {
+          include: {
+            items: true,
+            customer: true
+          },
+        },
+      },
+    });
+
+    
+    if (!resAll)
+      return sendResponse({
+        success: false,
+        message: "Gagal mendapatkan data pembayaran",
+      });
+
+    return sendResponse({
+      success: true,
+      message: "Berhasil",
+      data: resAll,
     });
   } catch (error) {
     return sendResponse({

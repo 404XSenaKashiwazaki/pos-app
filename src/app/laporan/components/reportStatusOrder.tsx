@@ -33,17 +33,14 @@ const ReportStatusOrder = () => {
     new Date(date.getFullYear(), date.getMonth(), 1)
   );
   const [endDate, setEndDate] = useState<Date>(date);
-  const [orderStatus, setOrderStatus] = useState<OrderStatus | string>(
-    typeof window !== "undefined"
-      ? localStorage.getItem("reportStatusOrder") ?? ""
-      : ""
-  );
+  const [orderStatus, setOrderStatus] = useState<OrderStatus | string>("");
   const [orders, setOrders] = useState<
     Prisma.OrderGetPayload<{
       include: { customer: true; items: true; payments: true };
     }>[]
   >();
-  const [chartOrders, setChartOrders] = useState<getByStatusOrdersToCartRes[]>();
+  const [chartOrders, setChartOrders] =
+    useState<getByStatusOrdersToCartRes[]>();
 
   const getAllStatusOrders = async () => {
     try {
@@ -58,7 +55,6 @@ const ReportStatusOrder = () => {
   const getAllStatusOrdersChart = async () => {
     try {
       const { data, success, error } = await getByStatusOrdersToCart();
-      console.log({ data });
       if (success && Array.isArray(data)) setChartOrders(data);
       if (error) toast.error("Ops...");
     } catch (error) {
@@ -68,9 +64,7 @@ const ReportStatusOrder = () => {
 
   useEffect(() => {
     setOrderStatus(localStorage.getItem("reportStatusOrder") ?? "");
-    if (orderStatus) {
-      getAllStatusOrders();
-    }
+    if (orderStatus) getAllStatusOrders();
     getAllStatusOrdersChart();
   }, [orderStatus]);
 

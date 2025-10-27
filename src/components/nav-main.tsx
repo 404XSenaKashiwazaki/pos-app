@@ -19,6 +19,7 @@ export function NavMain({
     title: string;
     url: string;
     icon?: Icon;
+    activeUrl: String[]
   }[];
 } & {   pathname: string }) {
 
@@ -36,7 +37,7 @@ export function NavMain({
             <SidebarMenuItem key={item.title} >
               <Link href={item.url}>
                 <SidebarMenuButton tooltip={item.title} className={`flex items-center gap-2 transition-colors ${
-                  (item.url === pathname || (item.url === "/dashboard" && pathname === "/"))
+                  (item.url === pathname || (item.url === "/dashboard" && pathname === "/") || item.activeUrl.find(e=> e === pathname) )
                     ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-slate-200"
                     : "hover:bg-muted"
                 }`}>

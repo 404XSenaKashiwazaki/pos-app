@@ -96,7 +96,7 @@ const FormStatusOrder = ({
                   onValueChange={field.onChange}
                   value={field.value}
                 >
-                  <FormControl className="w-full">
+                  <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih status laporan pemesanan" />
                     </SelectTrigger>

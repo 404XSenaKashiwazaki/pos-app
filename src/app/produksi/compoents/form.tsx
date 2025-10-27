@@ -119,12 +119,9 @@ const FormPage = ({
       }
       if (error) {
         setLoading(false);
-        console.log({ error });
-
         toast.error("Ops...");
       }
     } catch (error) {
-      console.log({ error });
       setLoading(false);
       toast.error("Ops...");
     }
@@ -134,7 +131,6 @@ const FormPage = ({
     setPreview(process.env.NEXT_PUBLIC_PREVIEW ?? null);
   };
 
-  console.log({ form: form.formState });
 
   return (
     <div className="w-full">

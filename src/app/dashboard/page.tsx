@@ -17,7 +17,7 @@ const Page = async () => {
   
   if (!data) return null;
 
-  const { totalRevenue, activeProductions, totalOrders, paidPayments } = data;
+  const { totalRevenue, activeProductions, totalOrders, paidPayments, notYetPaid } = data;
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
@@ -27,6 +27,7 @@ const Page = async () => {
             activeProductions={activeProductions}
             totalOrders={totalOrders}
             totalRevenue={totalRevenue}
+            notYetPaid={notYetPaid}
           />
           <DashboardChart  data={dataChart ?? []} />   {/*  masih statik chart */}
         

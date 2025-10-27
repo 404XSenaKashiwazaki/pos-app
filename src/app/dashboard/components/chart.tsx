@@ -7,16 +7,9 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
   CardContent,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  IconTrendingUp,
-  IconPackage,
-  IconPrinter,
-  IconCreditCard,
-} from "@tabler/icons-react";
+
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import {
   ChartContainer,
@@ -35,11 +28,10 @@ import {
 } from "@/components/ui/select";
 import { Chart } from "../queries";
 
-// ==== Dummy data (bisa diganti dari Prisma API route) ====
 
 const chartConfig = {
-  revenue: { label: "Revenue: ", color: "var(--chart-1)" },
-  orders: { label: "Orders: ", color: "var(--chart-2)" },
+  revenue: { label: "Pendapatan Kotor: ", color: "var(--chart-1)" },
+  orders: { label: "Pemesanan: ", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
 interface DashboardChartProps {
@@ -50,8 +42,8 @@ const DashboardChart = ({ data }: DashboardChartProps) => {
   const [range, setRange] = useState<string>("");
 
   useEffect(() => {
-    setTimeRange(localStorage.getItem("timeRange") ?? "7d");
-    setRange(localStorage.getItem("chartRangeKey") ?? "7 hari terakhir");
+    setTimeRange(localStorage.getItem("timeRangeDashboard") ?? "7d");
+    setRange(localStorage.getItem("chartRangeDashboardKey") ?? "7 hari terakhir");
   }, []);
 
   return (
@@ -69,14 +61,14 @@ const DashboardChart = ({ data }: DashboardChartProps) => {
             value={timeRange}
             onValueChange={(e) => {
               setTimeRange(e);
-              localStorage.setItem("timeRange", e);
+              localStorage.setItem("timeRangeDashboard", e);
               const rangeValues: Record<string, string> = {
                 "7d": "7 hari terakhir",
                 "30d": "30 hari terakhir",
                 "90d": "3 bulan terakhir",
               };
               setRange(rangeValues[e]);
-              localStorage.setItem("chartRangeKey", rangeValues[e]);
+              localStorage.setItem("chartRangeDashboardKey", rangeValues[e]);
             }}
           >
             <SelectTrigger className="hidden w-[160px] rounded-lg sm:ml-auto sm:flex">

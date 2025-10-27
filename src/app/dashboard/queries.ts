@@ -3,26 +3,42 @@
 import { prisma } from "@/lib/prisma";
 import { sendResponse } from "@/lib/response";
 import { Response } from "@/types/response";
-import { format } from "date-fns";
 
 export interface Dashboards {
   totalRevenue: number;
   totalOrders: number;
   activeProductions: number;
   paidPayments: number;
+  notYetPaid?: number;
 }
 export const getDashboards = async (): Promise<Response<Dashboards>> => {
   try {
-    const [orders, productions, payments] = await Promise.all([
+    const [orders, productions, payments, notPaids] = await Promise.all([
       prisma.order.findMany(),
       prisma.production.findMany(),
       prisma.payment.findMany(),
+      prisma.order.findMany({
+          where: {
+            payments: {
+              none: {
+                type: "FINAL",
+                status: "PAID",
+              },
+            },
+          },
+          include: {
+            customer: true,
+            items: true,
+            payments: true
+          },
+        })
     ]);
 
     // 🔹 Hitung statistik
     const totalRevenue = payments
       .filter((p) => p.status === "PAID")
       .reduce((sum, p) => sum + Number(p.amount), 0);
+    const totalNotPaid = notPaids.length
 
     const totalOrders = orders.length;
     const activeProductions = productions.filter(
@@ -45,6 +61,7 @@ export const getDashboards = async (): Promise<Response<Dashboards>> => {
         totalOrders,
         activeProductions,
         paidPayments,
+        notYetPaid:totalNotPaid
       },
     });
   } catch (error) {
@@ -76,12 +93,11 @@ export const getDataForChart = async (): Promise<Response<Chart[]>> => {
       },
     });
 
-
     const resGroup: Record<string, Chart> = {};
     if (Array.isArray(res) && res.length > 0) {
       for (const val of res) {
         let date = val.createdAt.toISOString().split("T")[0];
-        
+
         if (!resGroup[date])
           resGroup[date] = {
             date,

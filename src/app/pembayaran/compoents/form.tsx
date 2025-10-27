@@ -46,7 +46,7 @@ import previewImg from "@/public/preview.jpg";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateIDForm, toLocalDBFormat } from "@/lib/formatDateID";
-import { Badge } from "@/components/ui/badge";
+
 
 interface FormOrderProps {
   id?: string | null;

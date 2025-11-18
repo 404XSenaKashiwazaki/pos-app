@@ -47,6 +47,7 @@ import DateInput from "@/components/DateInput";
 import { useSheet } from "@/components/providers/Sheet-provider";
 import { updateProduction } from "../actions";
 import { formatDateIDForm, toLocalDBFormat } from "@/lib/formatDateID";
+import { Spinner } from "@/components/ui/spinner";
 const statusProduction: string[] = Object.values(ProductionStatus);
 
 interface FormPageProps {
@@ -82,7 +83,9 @@ const FormPage = ({
       assignedToId: assignedToId ?? "",
       endDate: endDate ? formatDateIDForm(endDate) : currentDate.toISOString(),
       progress: progress ?? "",
-      startDate: startDate ? formatDateIDForm(startDate) : new Date().toISOString(),
+      startDate: startDate
+        ? formatDateIDForm(startDate)
+        : new Date().toISOString(),
       status: status ?? "",
       sablonTypeId: sablonTypeId ?? "",
       notes: notes ?? "",
@@ -94,7 +97,10 @@ const FormPage = ({
     const formData = new FormData();
     formData.append("assignedToId", values.assignedToId);
     formData.append("orderItemId", values.orderItemId);
-    formData.append("endDate", toLocalDBFormat(new Date(values.endDate ?? "")).toISOString());
+    formData.append(
+      "endDate",
+      toLocalDBFormat(new Date(values.endDate ?? "")).toISOString()
+    );
     formData.append(
       "startDate",
       toLocalDBFormat(new Date(values.startDate ?? "")).toISOString()
@@ -109,7 +115,6 @@ const FormPage = ({
       setLoading(true);
       const { success, message, error } = await updateProduction(id, formData);
       if (success) {
-        setLoading(false);
         setOpen(false);
         toast("Sukses", {
           description: message,
@@ -117,20 +122,17 @@ const FormPage = ({
           closeButton: true,
         });
       }
-      if (error) {
-        setLoading(false);
-        toast.error("Ops...");
-      }
+      if (error) toast.error("Ops...");
     } catch (error) {
-      setLoading(false);
       toast.error("Ops...");
+    } finally {
+      setLoading(false);
     }
   };
 
   const deleteFileImagePreview = () => {
     setPreview(process.env.NEXT_PUBLIC_PREVIEW ?? null);
   };
-
 
   return (
     <div className="w-full">
@@ -140,6 +142,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="sablonTypeId"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Type sablon</FormLabel>
@@ -169,6 +172,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="status"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Status pemesanan</FormLabel>
@@ -200,6 +204,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="startDate"
+              disabled={loading}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -213,6 +218,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="endDate"
+              disabled={loading}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -231,6 +237,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="assignedToId"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Yang mengerjakan</FormLabel>
@@ -260,6 +267,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="progress"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Progress</FormLabel>
@@ -282,6 +290,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="filename"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Foto status pengerjaan</FormLabel>
@@ -332,6 +341,7 @@ const FormPage = ({
           <FormField
             control={form.control}
             name="notes"
+            disabled={loading}
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Catatan</FormLabel>
@@ -351,14 +361,28 @@ const FormPage = ({
               type="button"
               variant="outline"
               size={"sm"}
+              disabled={loading}
               onClick={() => setOpen(false)}
             >
               <X />
               Batal
             </Button>
-            <Button type="submit" variant="destructive" size={"sm"}>
-              <SaveAllIcon />
-              {loading ? "Memproses..." : "Simpan"}
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="destructive"
+              size={"sm"}
+            >
+              {loading ? (
+                <div className="flex gap-1 items-center">
+                  <Spinner className="size-3" />
+                  Loading...
+                </div>
+              ) : (
+                <div className="flex gap-1 items-center">
+                  <SaveAllIcon /> Simpan
+                </div>
+              )}
             </Button>
           </div>
         </form>

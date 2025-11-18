@@ -1,7 +1,7 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { getUsers } from "./queries";
-import DataTable from "./compoents/data-table";
 import { Metadata } from "next";
+import TableSection from "./compoents/table";
 
 export const metadata: Metadata = {
   title: `${
@@ -10,13 +10,10 @@ export const metadata: Metadata = {
 };
 const Page = async () => {
   const { data } = await getUsers();
-  if (!data || data?.length === 0) return null;
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-        <Suspense fallback={<div>Loading...</div>}>
-          <DataTable data={data} />
-        </Suspense>
+        <TableSection data={data ?? []} />
       </div>
     </div>
   );

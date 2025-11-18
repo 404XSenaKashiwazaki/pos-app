@@ -24,7 +24,7 @@ import {
   getOrdersStatus,
 } from "../queries";
 import { toast } from "sonner";
-import DataTable from "@/app/pemesanan/compoents/data-table";
+import DataTable from "@/app/pemesanan/components/data-table";
 import TableStatusOrder from "./tableStatusOrder";
 
 const ReportStatusOrder = () => {

@@ -230,3 +230,9 @@ export const formProductionSchema = z.object({
   filename: z.union([z.file(), z.string()]).optional(),
   notes: z.string().optional(),
 });
+
+
+export const formSiteSchema = z.object({
+  name: z.string().min(1, "Nama aplikasi wajib di isi.").max(20, "Nama aplikasi maksimal 20 karakter"),
+  filename: z.union([z.file(), z.string()]).optional(),
+})

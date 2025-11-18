@@ -5,10 +5,11 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
+import { auth, unstable_update } from "@/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { ModalProvider } from "@/components/providers/Modal-provider";
 import { SheetProvider } from "@/components/providers/Sheet-provider";
+import { prisma } from "@/lib/prisma";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,19 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
+  const site = await prisma.site.findFirst();
+  if (session) {
+    if (site)
+      unstable_update({
+        user: {
+          ...session.user,
+          siteName: site.name,
+          siteFileName: site.filename,
+          siteFileProofUrl: site.fileProofUrl,
+        },
+      });
+  }
+
   return (
     <html lang="en">
       <body

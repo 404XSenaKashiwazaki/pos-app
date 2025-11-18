@@ -1,6 +1,8 @@
 import React from "react";
-import Dashboard from "@/app/dashboard/page"
+import Dashboard from "@/app/dashboard/page";
 import { Metadata } from "next";
+
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: `${
@@ -8,9 +10,12 @@ export const metadata: Metadata = {
   } - Dashboard`,
 };
 const Page = () => {
-  return <div>
-    <Dashboard />    
-  </div>;
+
+  return (
+    <div>
+      <Dashboard />
+    </div>
+  );
 };
 
 export default Page;

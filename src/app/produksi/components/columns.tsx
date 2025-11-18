@@ -5,25 +5,20 @@ import {
   ArrowUpDown,
   Edit2Icon,
   SearchCheck,
-  Trash2Icon,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import React, { useState } from "react";
-import { toast } from "sonner";
+import React  from "react";
 import { useModal } from "@/components/providers/Modal-provider";
-
 import { ColumnProductionTypeDefProps } from "@/types/datatable";
 import FormPage from "./form";
 import DetailPage from "./detail";
-import { deleteProduction } from "../actions";
-import { Customer, Prisma, SablonType, User } from "@prisma/client";
+import {  SablonType, User } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { formatCurrency } from "@/lib/formatCurrency";
-import { IconCreditCardPay, IconMoneybagPlus } from "@tabler/icons-react";
+import { IconCreditCardPay } from "@tabler/icons-react";
 import { useSheet } from "@/components/providers/Sheet-provider";
+import DeleteModal from "./delete";
 
 interface CellActionProps {
   row: Row<ColumnProductionTypeDefProps>;
@@ -32,64 +27,16 @@ interface CellActionProps {
 }
 
 const CellAction = ({ row, handle, sablon }: CellActionProps) => {
-  const [loading, setLoading] = useState(false);
   const { modal, setOpen } = useModal();
   const { sheet } = useSheet();
 
-  const deleteData = async () => {
-    const id = row.original.id;
-    if (!id) return;
-    try {
-      setLoading(true);
-      const { success, message, error } = await deleteProduction(id);
-      if (success) {
-        setLoading(false);
-        setOpen(false);
-        toast("Sukses", {
-          description: message,
-          position: "top-right",
-          closeButton: true,
-        });
-      }
-
-      if (error) {
-        setLoading(false);
-        toast.error("Ops...");
-      }
-    } catch (error) {
-      setLoading(false);
-      toast.error("Ops...");
-    }
-  };
 
   const showModalDelete = () => {
     modal({
       title: "Apakah kamu benar-benar yakin?",
       description:
         "Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus produksi Anda secara permanen",
-      body: (
-        <>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              size={"sm"}
-              onClick={() => setOpen(false)}
-            >
-              <X />
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              size={"sm"}
-              disabled={loading ? true : false}
-              onClick={() => deleteData()}
-            >
-              <Trash2Icon />
-              {loading ? "Memproses..." : "Hapus"}
-            </Button>
-          </div>
-        </>
-      ),
+      body: <DeleteModal id={row.original.id} setOpen={setOpen} />,
     });
   };
 

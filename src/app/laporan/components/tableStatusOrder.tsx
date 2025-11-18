@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/formatCurrency";
 import { Prisma } from "@prisma/client";
 import { IconFileReport } from "@tabler/icons-react";
 import { format } from "date-fns";
+import Link from "next/link";
 
 interface TableStatusOrderProps {
   status: string;
@@ -27,15 +28,17 @@ const TableStatusOrder = ({ status, data }: TableStatusOrderProps) => {
   return (
     <div>
       <div>
-        <Button
-          size={"sm"}
-          variant="default"
-          aria-label="Submit"
-          disabled={data.length == 0 ? true : false}
-        >
-          <IconFileReport />
-          Cetak PDF
-        </Button>
+        <Link href={"/cetak"}>
+          <Button
+            size={"sm"}
+            variant="default"
+            aria-label="Submit"
+            disabled={data.length == 0 ? true : false}
+          >
+            <IconFileReport />
+            Cetak PDF
+          </Button>
+        </Link>
       </div>
       <Table className="mb-3 md:mb-5">
         <TableCaption>

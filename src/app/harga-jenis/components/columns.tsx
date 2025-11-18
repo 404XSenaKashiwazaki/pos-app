@@ -10,64 +10,21 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import React, { useState } from "react";
-import { toast } from "sonner";
+import React from "react";
 import { useModal } from "@/components/providers/Modal-provider";
-
 import { ColumnSablonTypeDefProps } from "@/types/datatable";
 import FormHargaJenis from "./form";
 import DetailHargaJenis from "./detail";
-import { deleteHargaJenis } from "../actions";
+import DeleteModal from "./delete";
 
 const CellAction = ({ row }: { row: Row<ColumnSablonTypeDefProps> }) => {
-  const [loading, setLoading] = useState(false);
   const { modal, setOpen } = useModal();
-
-  const deleteData = async () => {
-    const id = row.original.id;
-    if (!id) return;
-    try {
-      setLoading(true);
-      const { success, message } = await deleteHargaJenis(id);
-      if (success)
-        toast("Sukses", {
-          description: message,
-          position: "top-right",
-          closeButton: true,
-        });
-      setOpen(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const showModalDelete = () => {
     modal({
       title: "Apakah kamu benar-benar yakin?",
       description:
-        "Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pelanggan Anda secara permanen",
-      body: (
-        <>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              size={"sm"}
-              onClick={() => setOpen(false)}
-            >
-              <X />
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              size={"sm"}
-              onClick={() => deleteData()}
-            >
-              <Trash2Icon />
-              {loading ? "Memproses..." : "Hapus"}
-            </Button>
-          </div>
-        </>
-      ),
+        "Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus data Harga & Jenis Anda secara permanen",
+      body: <DeleteModal id={row.original.id} setOpen={setOpen} />,
     });
   };
 
@@ -77,13 +34,13 @@ const CellAction = ({ row }: { row: Row<ColumnSablonTypeDefProps> }) => {
       body: (
         <FormHargaJenis
           id={row.original.id}
-         basePrice={row.original.basePrice}
-         description={row.original.description}
-         isActive={row.original.isActive}
-         name={row.original.name}
-         notes={row.original.notes}
-         pricePerArea={row.original.pricePerArea}
-         pricePerColor={row.original.pricePerColor}
+          basePrice={row.original.basePrice}
+          description={row.original.description}
+          isActive={row.original.isActive}
+          name={row.original.name}
+          notes={row.original.notes}
+          pricePerArea={row.original.pricePerArea}
+          pricePerColor={row.original.pricePerColor}
         />
       ),
       size: "sm:max-w-2xl",
@@ -94,6 +51,7 @@ const CellAction = ({ row }: { row: Row<ColumnSablonTypeDefProps> }) => {
     modal({
       title: "Detail data harga & jenis",
       body: <DetailHargaJenis id={row.original.id} />,
+      size: "max-w-md"
     });
   };
 
@@ -140,23 +98,6 @@ export const columns = (): ColumnDef<ColumnSablonTypeDefProps>[] => [
     },
   },
   {
-    accessorKey: "description",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Deskripsi
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("description")}</div>
-    ),
-  },
-  {
     accessorKey: "basePrice",
     header: ({ column }) => {
       return (
@@ -169,9 +110,7 @@ export const columns = (): ColumnDef<ColumnSablonTypeDefProps>[] => [
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="">{row.getValue("basePrice")}</div>
-    ),
+    cell: ({ row }) => <div className="">{row.getValue("basePrice")}</div>,
   },
 
   {

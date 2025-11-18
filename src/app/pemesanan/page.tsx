@@ -1,10 +1,10 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { getOrders } from "./queries";
-import DataTable from "./compoents/data-table";
 import { getCustomers } from "../pelanggan/queries";
 import { getUsers } from "../users/queries";
 import { getHargaJenis } from "../harga-jenis/queries";
 import { Metadata } from "next";
+import TableSection from "./components/table";
 
 export const metadata: Metadata = {
   title: `${
@@ -19,14 +19,12 @@ const Page = async () => {
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-        <Suspense fallback={<div>Loading...</div>}>
-          <DataTable
-            data={data ?? []}
-            sablon={sablons ?? []}
-            handle={handles ?? []}
-            customer={customers ?? []}
-          />
-        </Suspense>
+        <TableSection
+          data={data ?? []}
+          sablons={sablons ?? []}
+          handles={handles ?? []}
+          customers={customers ?? []}
+        />
       </div>
     </div>
   );

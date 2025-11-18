@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSheet } from "@/components/providers/Sheet-provider";
 import FormPage from "./form";
+import Site from "./site";
 
 const ProfileCard = () => {
   const { data: session, update } = useSession();
@@ -50,7 +51,7 @@ const ProfileCard = () => {
   };
 
   return (
-    <>
+    <div className="flex flex-col sm:flex-row items-start gap-2">
       <Card className="w-full max-w-sm">
         <CardContent>
           <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
@@ -141,7 +142,10 @@ const ProfileCard = () => {
           </div>
         </CardContent>
       </Card>
-    </>
+      <Card className="w-full px-4 py-3">
+        <Site />
+      </Card>
+    </div>
   );
 };
 

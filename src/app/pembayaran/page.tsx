@@ -1,9 +1,8 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { getPayments } from "./queries";
-import DataTable from "./compoents/data-table";
-import { getOrders } from "../pemesanan/queries";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
+import TableSection from "./components/table";
 
 export const metadata: Metadata = {
   title: `${(process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".","") ?? ``} - Pembayaran`,
@@ -29,9 +28,7 @@ const Page = async () => {
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-        <Suspense fallback={<div>Loading...</div>}>
-          <DataTable data={data ?? []} orders={orders ?? []} />
-        </Suspense>
+        <TableSection data={data ?? []} orders={orders ?? []} />
       </div>
     </div>
   );

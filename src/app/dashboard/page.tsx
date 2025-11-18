@@ -1,37 +1,37 @@
 import { Metadata } from "next";
-import React, { Suspense } from "react";
+import React from "react";
 import { getDashboards, getDataForChart } from "./queries";
-import CardDashboard from "./components/card-dashboard";
-import DashboardChart from "./components/chart";
+import CardSection from "./components/card";
 export const metadata: Metadata = {
   title: `${
     (process.env.NEXT_PUBLIC_APP_NAME as string).replaceAll(".", "") ?? ``
   } - Dashboard`,
 };
 
-
 const Page = async () => {
   const { data } = await getDashboards();
-  const { data: dataChart } = await getDataForChart()
+  const { data: dataChart } = await getDataForChart();
 
-  
   if (!data) return null;
 
-  const { totalRevenue, activeProductions, totalOrders, paidPayments, notYetPaid } = data;
+  const {
+    totalRevenue,
+    activeProductions,
+    totalOrders,
+    paidPayments,
+    notYetPaid,
+  } = data;
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-        <Suspense fallback={<div>Loading...</div>}>
-          <CardDashboard
-            paidPayments={paidPayments}
-            activeProductions={activeProductions}
-            totalOrders={totalOrders}
-            totalRevenue={totalRevenue}
-            notYetPaid={notYetPaid}
-          />
-          <DashboardChart  data={dataChart ?? []} />   {/*  masih statik chart */}
-        
-        </Suspense>
+        <CardSection
+          paidPayments={paidPayments}
+          activeProductions={activeProductions}
+          totalOrders={totalOrders}
+          totalRevenue={totalRevenue}
+          notYetPaid={notYetPaid}
+          dataChart={dataChart ?? []}
+        />
       </div>
     </div>
   );

@@ -200,7 +200,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link href="/">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">POS APP.</span>
+                <span className="text-base font-semibold uppercase">{session.user.siteName}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

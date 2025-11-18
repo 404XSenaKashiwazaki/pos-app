@@ -48,6 +48,7 @@ import {
 import { createOrderNumber } from "@/lib/createOrderNumber";
 import DateInput from "@/components/DateInput";
 import { formatDateIDForm, toLocalDBFormat } from "@/lib/formatDateID";
+import { Spinner } from "@/components/ui/spinner";
 
 interface FormOrderProps {
   customer: Customer[];
@@ -169,7 +170,6 @@ const FormPage = ({
         ? await updateOrder(id, formData)
         : await addOrder(formData);
       if (success) {
-        setLoading(false);
         setOpen(false);
         toast("Sukses", {
           description: message,
@@ -177,13 +177,11 @@ const FormPage = ({
           closeButton: true,
         });
       }
-      if (error) {
-        setLoading(false);
-        toast.error("Ops...");
-      }
+      if (error) toast.error("Ops...");
     } catch (error) {
-      setLoading(false);
       toast.error("Ops...");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -230,12 +228,7 @@ const FormPage = ({
   return (
     <div className="w-full mb-10">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (errr) => {
-            console.log({ errr });
-          })}
-          className="space-y-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex flex-col md:justify-between md:flex-row items-start gap-1">
             <Card className=" w-full rounded-sm bg-slate-100">
               <CardContent className="flex items-center justify-between gap-1">
@@ -279,6 +272,7 @@ const FormPage = ({
                       }
                     }}
                     defaultValue={field.value}
+                    disabled={loading}
                   >
                     <FormControl className="w-full">
                       <SelectTrigger>
@@ -366,6 +360,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="product"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Produk/barang</FormLabel>
@@ -384,6 +379,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="color"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Warna</FormLabel>
@@ -405,6 +401,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="sablonTypeId"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Type sablon</FormLabel>
@@ -435,6 +432,7 @@ const FormPage = ({
               <FormField
                 control={form.control}
                 name="colorCount"
+                disabled={loading}
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Jumlah warna cetak</FormLabel>
@@ -453,6 +451,7 @@ const FormPage = ({
               <FormField
                 control={form.control}
                 name="printArea"
+                disabled={loading}
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Area sablon</FormLabel>
@@ -477,6 +476,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="size"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Ukuran</FormLabel>
@@ -495,6 +495,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="quantity"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Jumlah</FormLabel>
@@ -527,6 +528,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="unitPrice"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Harga satuan</FormLabel>
@@ -546,6 +548,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="totalAmount"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Sub total</FormLabel>
@@ -569,6 +572,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="filename"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Desain file</FormLabel>
@@ -622,6 +626,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="status"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Status pemesanan</FormLabel>
@@ -651,6 +656,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="handleById"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Yang mengerjakan</FormLabel>
@@ -682,6 +688,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="createdAt"
+              disabled={loading}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -695,6 +702,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="productionDue"
+              disabled={loading}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -712,6 +720,7 @@ const FormPage = ({
           <FormField
             control={form.control}
             name="notes"
+            disabled={loading}
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Catatan</FormLabel>
@@ -732,14 +741,27 @@ const FormPage = ({
               type="button"
               variant="outline"
               size={"sm"}
+              disabled={loading}
               onClick={() => setOpen(false)}
             >
               <X />
               Batal
             </Button>
-            <Button type="submit" variant="destructive" size={"sm"}>
-              <SaveAllIcon />
-              {loading ? "Memproses..." : "Simpan"}
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="destructive"
+              size={"sm"}
+            >
+              
+              {loading ? (
+                <div className="flex gap-1 items-center">
+                  <Spinner className="size-3" />
+                  Loading...
+                </div>
+              ) : (
+                <div className="flex gap-1 items-center"><SaveAllIcon /> Simpan</div>
+              )}
             </Button>
           </div>
         </form>

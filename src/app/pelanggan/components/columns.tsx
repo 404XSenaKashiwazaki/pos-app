@@ -18,63 +18,17 @@ import { ColumnPelangganDefProps } from "@/types/datatable";
 import FormCustomer from "./form";
 import DetailCustomer from "./detail";
 import { deleteCustomer } from "../actions";
+import DeleteModal from "./delete";
 
 const CellAction = ({ row }: { row: Row<ColumnPelangganDefProps> }) => {
-  const [loading, setLoading] = useState(false);
   const { modal, setOpen } = useModal();
-
-  const deleteData = async () => {
-    const id = row.original.id;
-    if (!id) return;
-    try {
-      setLoading(true);
-      const { success, message, error } = await deleteCustomer(id);
-      if (success) {
-        setLoading(false);
-        setOpen(false);
-        toast("Sukses", {
-          description: message,
-          position: "top-right",
-          closeButton: true,
-        });
-      }
-
-      if (error) {
-        setLoading(false);
-        toast.error("Ops...");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const showModalDelete = () => {
     modal({
       title: "Apakah kamu benar-benar yakin?",
       description:
         "Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus pelanggan Anda secara permanen",
-      body: (
-        <>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              size={"sm"}
-              onClick={() => setOpen(false)}
-            >
-              <X />
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              size={"sm"}
-              onClick={() => deleteData()}
-            >
-              <Trash2Icon />
-              {loading ? "Memproses..." : "Hapus"}
-            </Button>
-          </div>
-        </>
-      ),
+      body: <DeleteModal id={row.original.id} setOpen={setOpen}/>,
     });
   };
 

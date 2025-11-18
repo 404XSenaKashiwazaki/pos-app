@@ -13,7 +13,6 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { ChevronDown, PlusIcon } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,17 +30,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { columns } from "./columns";
-
-import { useModal } from "@/components/providers/Modal-provider";
-import { Customer, Order, Prisma, SablonType, User } from "@prisma/client";
-
+import { Customer, SablonType, User } from "@prisma/client";
 import FormPage from "./form";
 import { ColumnOrderTypeDefProps } from "@/types/datatable";
 import { useSheet } from "@/components/providers/Sheet-provider";
 import {
-  IconShoppingBagPlus,
   IconShoppingCartPlus,
-  IconUserCircle,
 } from "@tabler/icons-react";
 
 interface DataTableProps {

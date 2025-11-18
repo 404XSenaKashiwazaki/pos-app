@@ -46,7 +46,7 @@ import previewImg from "@/public/preview.jpg";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateIDForm, toLocalDBFormat } from "@/lib/formatDateID";
-
+import { Spinner } from "@/components/ui/spinner";
 
 interface FormOrderProps {
   id?: string | null;
@@ -170,12 +170,13 @@ const FormPage = ({
               <FormField
                 control={form.control}
                 name="orderId"
+                disabled={loading}
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Pemesan dan produk pesanan</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        setReadonly(false)
+                        setReadonly(false);
                         field.onChange(value);
                         form.setValue("orderId", value);
                         const getCountAmount = findCustomerProduct(value);
@@ -263,6 +264,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="amount"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Total pembayaran</FormLabel>
@@ -306,6 +308,7 @@ const FormPage = ({
             <Button
               type="button"
               size="sm"
+              disabled={loading}
               onClick={() => {
                 setTotalAmount("");
                 form.setValue("amount", "");
@@ -321,6 +324,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="type"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Type pembayaran </FormLabel>
@@ -350,6 +354,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="method"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Metode pembayaran </FormLabel>
@@ -381,6 +386,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="status"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Status pembayaran</FormLabel>
@@ -410,6 +416,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="paidAt"
+              disabled={loading}
               render={({ field }) => {
                 return (
                   <FormItem className="w-full">
@@ -425,6 +432,7 @@ const FormPage = ({
             <FormField
               control={form.control}
               name="reference"
+              disabled={loading}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Bukti pembayaran</FormLabel>
@@ -474,6 +482,7 @@ const FormPage = ({
           <FormField
             control={form.control}
             name="notes"
+            disabled={loading}
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Catatan</FormLabel>
@@ -493,7 +502,7 @@ const FormPage = ({
               type="button"
               variant="outline"
               size={"sm"}
-              disabled={loading ? true : false}
+              disabled={loading}
               onClick={() => setOpen(false)}
             >
               <X />
@@ -502,11 +511,19 @@ const FormPage = ({
             <Button
               type="submit"
               variant="destructive"
-              disabled={loading ? true : false}
+              disabled={loading}
               size={"sm"}
             >
-              <SaveAllIcon />
-              {loading ? "Memproses..." : "Simpan"}
+              {loading ? (
+                <div className="flex gap-1 items-center">
+                  <Spinner className="size-3" />
+                  Loading...
+                </div>
+              ) : (
+                <div className="flex gap-1 items-center">
+                  <SaveAllIcon /> Simpan
+                </div>
+              )}
             </Button>
           </div>
         </form>

@@ -5,11 +5,15 @@ declare module "next-auth" {
     user: User & DefaultSession["user"];
   }
 
+
   interface User {
     role?: string | null;
     address?: string | null;
     phone?: string | null;
     imageUrl?: string | null;
+    siteName?: string | null;
+    siteFileName?: string | null;
+    siteFileProofUrl?: string | null;
   }
 }
 
@@ -22,5 +26,8 @@ declare module "next-auth/jwt" {
     phone?: string | null;
     sub: string;
     imageUrl?: string | null;
+    siteName?: string | null;
+    siteFileName?: string | null;
+    siteFileProofUrl?: string | null;
   }
 }

@@ -1,7 +1,8 @@
 import React, { Suspense } from "react";
 import { getHargaJenis } from "./queries";
-import DataTable from "./compoents/data-table";
+import DataTable from "./components/data-table";
 import { Metadata } from "next";
+import TableSection from "./components/table";
 
 export const metadata: Metadata = {
   title: `${
@@ -14,9 +15,7 @@ const Page = async () => {
   return (
     <div className="container mx-auto py-10">
       <div className="w-full">
-        <Suspense fallback={<div>Loading...</div>}>
-          <DataTable data={data ?? []} />
-        </Suspense>
+        <TableSection data={data ?? []} />
       </div>
     </div>
   );

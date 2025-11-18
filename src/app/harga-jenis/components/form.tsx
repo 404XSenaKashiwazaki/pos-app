@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  Dispatch,
-  SetStateAction,
-  startTransition,
-  useRef,
-  useState,
-} from "react";
+import React, { useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,59 +15,64 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/components/providers/Modal-provider";
 import { SaveAllIcon, X } from "lucide-react";
-import { formCustomerSchema } from "@/types/zod";
+import { formHargaJenisSchema } from "@/types/zod";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { FormCustomerValue } from "@/types/form";
-import { addCustomer, updateCustomer } from "../actions";
+import { FormHargaJenisValue } from "@/types/form";
+import { addHargaJenis, updateHargaJenis } from "../actions";
 import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
 
-const FormCustomer = ({
+const FormHargaJenis = ({
   id,
   name,
-  email,
-  phone,
-  address,
+  basePrice,
+  description,
+  isActive,
+  pricePerArea,
+  pricePerColor,
   notes,
-}: Partial<FormCustomerValue>) => {
-  const isProcessing = useRef(false);
+}: Partial<FormHargaJenisValue>) => {
   const [loading, setLoading] = useState(false);
   const { setOpen } = useModal();
-  const form = useForm<z.infer<typeof formCustomerSchema>>({
-    resolver: zodResolver(formCustomerSchema),
+  const form = useForm<z.infer<typeof formHargaJenisSchema>>({
+    resolver: zodResolver(formHargaJenisSchema),
     defaultValues: {
       name: name ?? "",
-      phone: phone ?? "",
-      email: email ?? "",
-      address: address ?? "",
+      description: description ?? "",
+      basePrice: basePrice ?? "",
+      pricePerColor: pricePerColor ?? "",
+      // pricePerArea: pricePerArea ?? "",
       notes: notes ?? "",
+      isAtive: isActive ?? true,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formCustomerSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formHargaJenisSchema>) => {
+    console.log({ values });
     const formData = new FormData();
-    Object.entries(values).forEach(([key, val]) => formData.append(key, val));
+    formData.set("name", values.name);
+    formData.set("description", values.description);
+    formData.set("basePrice", values.basePrice);
+    formData.set("pricePerColor", values.pricePerColor);
+    // formData.set("pricePerArea",values.pricePerArea)
+    formData.set("notes", values.notes ?? "");
     try {
       setLoading(true);
-      const { success, message } = id
-        ? await updateCustomer(id, formData)
-        : await addCustomer(formData);
+      const { success, message, error } = id
+        ? await updateHargaJenis(id, formData)
+        : await addHargaJenis(formData);
       if (success) {
+        setOpen(false);
         toast("Sukses", {
           description: message,
           position: "top-right",
           closeButton: true,
         });
-        setLoading(false);
-        setOpen(false);
       }
+      if (error) toast.error("Ops..");
     } catch (error) {
+      toast.error("Ops...");
+    } finally {
       setLoading(false);
     }
   };
@@ -93,6 +92,7 @@ const FormCustomer = ({
                     <Input
                       type="text"
                       className="w-full "
+                      disabled={loading}
                       placeholder="Masukan nama"
                       {...field}
                     />
@@ -103,15 +103,16 @@ const FormCustomer = ({
             />
             <FormField
               control={form.control}
-              name="phone"
+              name="basePrice"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>No hp</FormLabel>
+                  <FormLabel>Harga awal</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       className="w-full"
-                      placeholder="Masukan no hp"
+                      disabled={loading}
+                      placeholder="Masukan harga awal"
                       {...field}
                     />
                   </FormControl>
@@ -120,34 +121,56 @@ const FormCustomer = ({
               )}
             />
           </div>
+          <div className="flex flex-col md:justify-between md:flex-row items-start gap-1">
+            <FormField
+              control={form.control}
+              name="pricePerColor"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Harga per warna</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      className="w-full"
+                      disabled={loading}
+                      placeholder="Masukan harga per warna"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* <FormField
+              control={form.control}
+              name="pricePerArea"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Harga per area</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      className="w-full"
+                      placeholder="Masukan harga per area"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
+          </div>
           <FormField
             control={form.control}
-            name="email"
+            name="description"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    className="w-full"
-                    placeholder="Masukan email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Alamat</FormLabel>
+                <FormLabel>Deskripsi </FormLabel>
                 <FormControl>
                   <Textarea
                     className="w-full"
-                    placeholder="Masukan alamat"
+                    disabled={loading}
+                    placeholder="Masukan deskripsi"
                     {...field}
                   />
                 </FormControl>
@@ -164,6 +187,7 @@ const FormCustomer = ({
                 <FormControl>
                   <Textarea
                     className="w-full"
+                    disabled={loading}
                     placeholder="Masukan catatan"
                     {...field}
                   />
@@ -177,14 +201,28 @@ const FormCustomer = ({
               type="button"
               variant="outline"
               size={"sm"}
+              disabled={loading}
               onClick={() => setOpen(false)}
             >
               <X />
               Batal
             </Button>
-            <Button type="submit" variant="destructive" size={"sm"}>
-              <SaveAllIcon />
-              {loading ? "Memproses..." : "Simpan"}
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="destructive"
+              size={"sm"}
+            >
+              {loading ? (
+                <div className="flex gap-1 items-center">
+                  <Spinner className="size-3" />
+                  Loading...
+                </div>
+              ) : (
+                <div className="flex gap-1 items-center">
+                  <SaveAllIcon /> Simpan
+                </div>
+              )}
             </Button>
           </div>
         </form>
@@ -193,4 +231,4 @@ const FormCustomer = ({
   );
 };
 
-export default FormCustomer;
+export default FormHargaJenis;

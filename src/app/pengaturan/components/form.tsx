@@ -83,12 +83,13 @@ const FormPage = ({
         console.log({ res });
 
         if (res) {
-          console.log("update");
           await update({ user: res });
         }
       }
     } catch (error) {
-      setLoading(false);
+      toast.error("Ops...")
+    } finally {
+setLoading(false);
     }
     // if (res.data) await update({ user: res.data.user });
   };
